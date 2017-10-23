@@ -6,17 +6,10 @@ public class ChunkController : MonoBehaviour {
     [SerializeField]
     private Material _uvTexture;
     private int _spriteSheetSize = 4;
-
-    [SerializeField]
+    
     private int _seed;
-    [SerializeField]
-    private int _tileSize = 1;
-    [SerializeField]
-    private int _scale = 10;
-    [SerializeField]
-    private int _width = 64;
-    [SerializeField]
-    private int _height = 64;
+    private int _size;
+    private int _scale;
 
     private int[,] _blocks;
 
@@ -24,34 +17,41 @@ public class ChunkController : MonoBehaviour {
     private MeshFilter _meshFilter;
     private Mesh _mesh;
 
+    private int _chunkXCoord;
+    private int _chunkYCoord;
+
     // Use this for initialization
-    void Start () {
+    void Awake () {
         _meshRenderer = GetComponent<MeshRenderer>();
         _meshFilter = GetComponent<MeshFilter>();
+        _mesh = _meshFilter.mesh;
     }
 
-    private void GenerateChunk()
+    public void GenerateChunk(int x, int y, int chunkSize, int scale, int seed)
     {
-        _blocks = new int[_width, _height];
-        for(int i = 0; i < _width; i++)
+        _scale = scale;
+        _size = chunkSize;
+        _chunkXCoord = x;
+        _chunkYCoord = y;
+        _blocks = new int[_size, _size];
+        for (int i = 0; i < _size; i++)
         {
-            for(int j = 0; j < _height; j++)
+            for (int j = 0; j < _size; j++)
             {
                 float perlinValue = GetPerlinNoiseValueAt(i, j);
                 if (perlinValue < .3f)
                 {
                     _blocks[i, j] = 1;
-                } else if(perlinValue >.3f)
+                }
+                else if (perlinValue > .3f)
                 {
                     _blocks[i, j] = 2;
                 }
-            } 
+            }
         }
-
-        GenerateMesh();
     }
 
-    private void GenerateMesh()
+    public void GenerateMesh(int tileSize)
     {
         List<Vector3> verticies = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -59,9 +59,9 @@ public class ChunkController : MonoBehaviour {
 
         int blockCount = 0;
 
-        for (int x = 0; x < _width; x++)
+        for (int x = 0; x < _size; x++)
         {
-            for (int y = 0; y < _height; y++)
+            for (int y = 0; y < _size; y++)
             {
                 if (_blocks[x, y] != 0)
                 {
@@ -69,12 +69,12 @@ public class ChunkController : MonoBehaviour {
                     int id = _blocks[x, y] - 1;
 
                     //Create the verticies
-                    int xCoord = x * _tileSize;
-                    int yCoord = y * _tileSize;
+                    int xCoord = x * tileSize;
+                    int yCoord = y * tileSize;
                     verticies.Add(new Vector3(xCoord, yCoord, 0));
-                    verticies.Add(new Vector3(xCoord + _tileSize, yCoord, 0));
-                    verticies.Add(new Vector3(xCoord + _tileSize, yCoord - _tileSize, 0));
-                    verticies.Add(new Vector3(xCoord, yCoord - _tileSize, 0));
+                    verticies.Add(new Vector3(xCoord + tileSize, yCoord, 0));
+                    verticies.Add(new Vector3(xCoord + tileSize, yCoord - tileSize, 0));
+                    verticies.Add(new Vector3(xCoord, yCoord - tileSize, 0));
 
                     //Make a guideline for the building on the triangles
                     triangles.Add(0 + blockCount * 4);
@@ -107,25 +107,23 @@ public class ChunkController : MonoBehaviour {
         _mesh.uv = uv.ToArray();
         _mesh.RecalculateNormals();
 
-        //Generate mesh collider
+        //Initialize mesh collider
         GetComponent<MeshCollider>().sharedMesh = _mesh;
+        
+        //Initialize tiles texures
+        GetComponent<Renderer>().material = _uvTexture;
     }
 	
     private float GetPerlinNoiseValueAt(int x, int y)
     {
-        float xCoord = (float) x / _width * _scale + _seed;
-        float yCoord = (float) y / _height * _scale + _seed;
+        float xCoord = (float) x / _size * _scale + _chunkXCoord * _seed;
+        float yCoord = (float) y / _size * _scale + _chunkYCoord * _seed;
 
         return Mathf.PerlinNoise(xCoord, yCoord);
     }
 
 	// Update is called once per frame
 	void Update () {
-        if (_meshFilter != null && _mesh == null)
-        {
-            _mesh = _meshFilter.mesh;
-            GenerateChunk();
-            GetComponent<Renderer>().material = _uvTexture;
-        }
+
     }
 }
