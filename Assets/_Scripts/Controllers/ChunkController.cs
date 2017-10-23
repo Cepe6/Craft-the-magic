@@ -9,7 +9,7 @@ public class ChunkController : MonoBehaviour {
     
     private int _seed;
     private int _size;
-    private int _scale;
+    private float _scale;
 
     private int[,] _blocks;
 
@@ -19,7 +19,7 @@ public class ChunkController : MonoBehaviour {
 
     private int _chunkXCoord;
     private int _chunkYCoord;
-
+    
     // Use this for initialization
     void Awake () {
         _meshRenderer = GetComponent<MeshRenderer>();
@@ -27,23 +27,29 @@ public class ChunkController : MonoBehaviour {
         _mesh = _meshFilter.mesh;
     }
 
-    public void GenerateChunk(int x, int y, int chunkSize, int scale, int seed)
+    public void InitializeChunk(int x, int y, int chunkSize, float scale, int seed)
     {
         _scale = scale;
         _size = chunkSize;
         _chunkXCoord = x;
         _chunkYCoord = y;
+        _seed = seed;
         _blocks = new int[_size, _size];
+        GenerateChunk();
+    }
+
+    public void GenerateChunk()
+    {
         for (int i = 0; i < _size; i++)
         {
             for (int j = 0; j < _size; j++)
             {
                 float perlinValue = GetPerlinNoiseValueAt(i, j);
-                if (perlinValue < .3f)
+                if (perlinValue < .2f)
                 {
                     _blocks[i, j] = 1;
                 }
-                else if (perlinValue > .3f)
+                else if (perlinValue > .2f)
                 {
                     _blocks[i, j] = 2;
                 }
@@ -116,9 +122,8 @@ public class ChunkController : MonoBehaviour {
 	
     private float GetPerlinNoiseValueAt(int x, int y)
     {
-        float xCoord = (float) x / _size * _scale + _chunkXCoord * _seed;
-        float yCoord = (float) y / _size * _scale + _chunkYCoord * _seed;
-
+        float xCoord = (float)x / _size * _scale + _chunkXCoord * _seed;
+        float yCoord = (float)y / _size  * _scale + _chunkYCoord * _seed;
         return Mathf.PerlinNoise(xCoord, yCoord);
     }
 
