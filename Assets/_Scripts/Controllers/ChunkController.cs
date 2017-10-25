@@ -8,7 +8,8 @@ public class ChunkController : MonoBehaviour {
     private int _spriteSheetSize = 4;
     
     private int _seed;
-    private int _size;
+    private int _tileCount;
+    private int _tileSize;
     private float _scale;
 
     private int[,] _blocks;
@@ -27,37 +28,36 @@ public class ChunkController : MonoBehaviour {
         _mesh = _meshFilter.mesh;
     }
 
-    public void InitializeChunk(int x, int y, int chunkSize, float scale, int seed)
+    public void InitializeChunk(int x, int y, int tileCount, int tileSize, float scale, int seed)
     {
         _scale = scale;
-        _size = chunkSize;
+        _tileCount = tileCount;
+        _tileSize = tileSize;
         _chunkXCoord = x;
         _chunkYCoord = y;
         _seed = seed;
-        _blocks = new int[_size, _size];
+        _blocks = new int[_tileCount, _tileCount];
         GenerateChunk();
     }
 
     public void GenerateChunk()
     {
-        for (int i = 0; i < _size; i++)
+        for (int i = 0; i < _tileCount; i++)
         {
-            for (int j = 0; j < _size; j++)
+            for (int j = 0; j < _tileCount; j++)
             {
+                _blocks[i, j] = 0;
+
                 float perlinValue = GetPerlinNoiseValueAt(i, j);
-                if (perlinValue < .2f)
+               if(perlinValue > .3f)
                 {
-                    _blocks[i, j] = 1;
-                }
-                else if (perlinValue > .2f)
-                {
-                    _blocks[i, j] = 2;
-                }
+                    _blocks[i, j] = 7;
+                } 
             }
         }
     }
 
-    public void GenerateMesh(int tileSize)
+    public void GenerateMesh()
     {
         List<Vector3> verticies = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -65,44 +65,42 @@ public class ChunkController : MonoBehaviour {
 
         int blockCount = 0;
 
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _tileCount; x++)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _tileCount; y++)
             {
-                if (_blocks[x, y] != 0)
-                {
+                int id = _blocks[x, y];
 
-                    int id = _blocks[x, y] - 1;
+                //Create the verticies
+                int xCoord = (x) * _tileSize;
+                int yCoord = (y) * _tileSize;
+                verticies.Add(new Vector3(xCoord, yCoord, 0));
+                verticies.Add(new Vector3(xCoord + _tileSize, yCoord, 0));
+                verticies.Add(new Vector3(xCoord + _tileSize, yCoord - _tileSize, 0));
+                verticies.Add(new Vector3(xCoord, yCoord - _tileSize, 0));
 
-                    //Create the verticies
-                    int xCoord = x * tileSize;
-                    int yCoord = y * tileSize;
-                    verticies.Add(new Vector3(xCoord, yCoord, 0));
-                    verticies.Add(new Vector3(xCoord + tileSize, yCoord, 0));
-                    verticies.Add(new Vector3(xCoord + tileSize, yCoord - tileSize, 0));
-                    verticies.Add(new Vector3(xCoord, yCoord - tileSize, 0));
-
-                    //Make a guideline for the building on the triangles
-                    triangles.Add(0 + blockCount * 4);
-                    triangles.Add(1 + blockCount * 4);
-                    triangles.Add(3 + blockCount * 4);
-                    triangles.Add(1 + blockCount * 4);
-                    triangles.Add(2 + blockCount * 4);
-                    triangles.Add(3 + blockCount * 4);
+                //Make a guideline for the building on the triangles
+                triangles.Add(0 + blockCount * 4);
+                triangles.Add(1 + blockCount * 4);
+                triangles.Add(3 + blockCount * 4);
+                triangles.Add(1 + blockCount * 4);
+                triangles.Add(2 + blockCount * 4);
+                triangles.Add(3 + blockCount * 4);
 
 
-                    //Select the right texture for the tile based on the tile id
-                    int left = (id % _spriteSheetSize);
-                    int right = left + 1;
-                    int top = _spriteSheetSize - (id / _spriteSheetSize);
-                    int bot = top + 1;
-                    uv.Add(new Vector2(left / (float)_spriteSheetSize, top / (float)_spriteSheetSize));
-                    uv.Add(new Vector2(right / (float)_spriteSheetSize, top / (float)_spriteSheetSize));
-                    uv.Add(new Vector2(right / (float)_spriteSheetSize, bot / (float)_spriteSheetSize));
-                    uv.Add(new Vector2(left / (float)_spriteSheetSize, bot / (float)_spriteSheetSize));
+                //Select the right texture for the tile based on the tile id
+                float unit = 1f / _spriteSheetSize;
+                
+                float idToSpriteSheetSize = (float)id / _spriteSheetSize;
+                float xUnit = idToSpriteSheetSize - (int)idToSpriteSheetSize;
+                float yUnit = (int)idToSpriteSheetSize * unit;
+                //Debug.Log(id + ": " + idToSpriteSheetSize + ", " + (int)idToSpriteSheetSize + ", " + xUnit + ", " + yUnit);
+                uv.Add(new Vector2(xUnit, yUnit));
+                uv.Add(new Vector2(xUnit + unit, yUnit));
+                uv.Add(new Vector2(xUnit + unit, yUnit + unit));
+                uv.Add(new Vector2(xUnit, yUnit + unit));
 
-                    blockCount++;
-                }
+                blockCount++;
             }
         }
         
@@ -122,8 +120,8 @@ public class ChunkController : MonoBehaviour {
 	
     private float GetPerlinNoiseValueAt(int x, int y)
     {
-        float xCoord = (float)x / _size * _scale + _chunkXCoord * _seed;
-        float yCoord = (float)y / _size  * _scale + _chunkYCoord * _seed;
+        float xCoord = 32768 + _seed + ((float)x / _tileCount + _chunkXCoord) * _scale;
+        float yCoord = 32768 + _seed  + ((float)y / _tileCount + _chunkYCoord) * _scale; 
         return Mathf.PerlinNoise(xCoord, yCoord);
     }
 

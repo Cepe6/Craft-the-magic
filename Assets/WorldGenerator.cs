@@ -42,8 +42,8 @@ public class WorldGenerator : MonoBehaviour {
         GameObject instance =  Instantiate(_chunkPrefab);
         instance.transform.position = new Vector3(x * _chunkSize, 0f, y * _chunkSize);
         instance.name = "Chunk " + new Vector2(x, y);
-        instance.GetComponent<ChunkController>().InitializeChunk(x * _chunkSize, y * _chunkSize, _chunkTileSize, _biomesScale, _seed);
-        instance.GetComponent<ChunkController>().GenerateMesh(_tileSize);
+        instance.GetComponent<ChunkController>().InitializeChunk(x, y, _chunkTileSize, _tileSize, _biomesScale, _seed);
+        instance.GetComponent<ChunkController>().GenerateMesh();
         _generatedChunks.Add(instance);
     }
 
