@@ -26,11 +26,14 @@ public class ChunksController : MonoBehaviour {
 
     Vector2 _movementDisableCoordinates;
     Vector2 _lastFrameCoordinates;
+
+    GameObject chunkWrapper;
  
     // Use this for initialization
     void Awake()
     {
         _chunkSize = _tileSize * _chunkTileSize;
+        chunkWrapper = new GameObject("Chunk wrapper");
     }
 
     // Update is called once per frame
@@ -67,6 +70,7 @@ public class ChunksController : MonoBehaviour {
         GameObject instance = Instantiate(_chunkPrefab);
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
         instance.name = "Chunk " + new Vector2(coordinates.x, coordinates.y);
+        instance.transform.parent = chunkWrapper.transform;
         instance.GetComponent<Chunk>().InitializeChunk(coordinates.x, coordinates.y, _chunkTileSize, _tileSize, _biomesScale, _seed);
         instance.GetComponent<Chunk>().GenerateMesh();
         _generatedChunks.Add(instance);
