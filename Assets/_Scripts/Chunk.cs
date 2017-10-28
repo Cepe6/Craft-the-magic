@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChunkController : MonoBehaviour {
+public class Chunk : MonoBehaviour {
     [SerializeField]
     private Material _uvTexture;
     private int _spriteSheetSize = 4;
@@ -18,8 +18,8 @@ public class ChunkController : MonoBehaviour {
     private MeshFilter _meshFilter;
     private Mesh _mesh;
 
-    private int _chunkXCoord;
-    private int _chunkYCoord;
+    private float _chunkXCoord;
+    private float _chunkYCoord;
     
     // Use this for initialization
     void Awake () {
@@ -28,7 +28,7 @@ public class ChunkController : MonoBehaviour {
         _mesh = _meshFilter.mesh;
     }
 
-    public void InitializeChunk(int x, int y, int tileCount, int tileSize, float scale, int seed)
+    public void InitializeChunk(float x, float y, int tileCount, int tileSize, float scale, int seed)
     {
         _scale = scale;
         _tileCount = tileCount;
@@ -94,7 +94,7 @@ public class ChunkController : MonoBehaviour {
                 float idToSpriteSheetSize = (float)id / _spriteSheetSize;
                 float xUnit = idToSpriteSheetSize - (int)idToSpriteSheetSize;
                 float yUnit = (int)idToSpriteSheetSize * unit;
-                //Debug.Log(id + ": " + idToSpriteSheetSize + ", " + (int)idToSpriteSheetSize + ", " + xUnit + ", " + yUnit);
+
                 uv.Add(new Vector2(xUnit, yUnit));
                 uv.Add(new Vector2(xUnit + unit, yUnit));
                 uv.Add(new Vector2(xUnit + unit, yUnit + unit));
@@ -123,6 +123,11 @@ public class ChunkController : MonoBehaviour {
         float xCoord = 32768 + _seed + ((float)x / _tileCount + _chunkXCoord) * _scale;
         float yCoord = 32768 + _seed  + ((float)y / _tileCount + _chunkYCoord) * _scale; 
         return Mathf.PerlinNoise(xCoord, yCoord);
+    }
+
+    public Vector2 GetCoordinates()
+    {
+        return new Vector2(_chunkXCoord, _chunkYCoord);
     }
 
 	// Update is called once per frame
