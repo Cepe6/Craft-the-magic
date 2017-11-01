@@ -5,12 +5,15 @@ using UnityEngine;
 public class Chunk : MonoBehaviour {
     [SerializeField]
     private Material _uvTexture;
-    private int _spriteSheetSize = 4;
-    
-    private int _seed;
+    [SerializeField]
+    private int _spriteSheetSize = 2;
+    [SerializeField]
     private int _tileCount;
+    [SerializeField]
     private int _tileSize;
-    private float _scale;
+
+    private int _seed;
+    private float[] _scales;
 
     private int[,] _blocks;
 
@@ -28,13 +31,11 @@ public class Chunk : MonoBehaviour {
         _mesh = _meshFilter.mesh;
     }
 
-    public void InitializeChunk(float x, float y, int tileCount, int tileSize, float scale, int seed)
+    public void InitializeChunk(Vector2 coordinates, float[] scales, int seed)
     {
-        _scale = scale;
-        _tileCount = tileCount;
-        _tileSize = tileSize;
-        _chunkXCoord = x;
-        _chunkYCoord = y;
+        _scales = scales;
+        _chunkXCoord = coordinates.x;
+        _chunkYCoord = coordinates.y;
         _seed = seed;
         _blocks = new int[_tileCount, _tileCount];
         GenerateChunk();
@@ -48,11 +49,14 @@ public class Chunk : MonoBehaviour {
             {
                 _blocks[i, j] = 0;
 
-                float perlinValue = GetPerlinNoiseValueAt(i, j);
-               if(perlinValue > .3f)
+                float perlinValue = PerlinValue(i, j, 0);
+                if (perlinValue < .30f)
                 {
-                    _blocks[i, j] = 7;
-                } 
+                    _blocks[i, j] = 1;
+                } else if (perlinValue < .35f)
+                {
+                    _blocks[i, j] = 2;
+                }
             }
         }
     }
@@ -118,10 +122,33 @@ public class Chunk : MonoBehaviour {
         GetComponent<Renderer>().material = _uvTexture;
     }
 	
-    private float GetPerlinNoiseValueAt(int x, int y)
+    //Generate perlin value for x, y of type (0 = Biome; 1 = Water; 2 = Resource; 3 = Tree)
+    private float PerlinValue(int x, int y, int type)
     {
-        float xCoord = 32768 + _seed + ((float)x / _tileCount + _chunkXCoord) * _scale;
-        float yCoord = 32768 + _seed  + ((float)y / _tileCount + _chunkYCoord) * _scale; 
+        int offset;
+        float scale;
+        switch(type)
+        {
+            case 0: offset = Constants.BIOMES_OFFSET;
+                scale = _scales[0];
+                break;
+            case 1:
+                offset = Constants.WATER_OFFSET;
+                scale = _scales[1];
+                break;
+            case 2:
+                offset = Constants.RESOURCES_OFFSET;
+                scale = _scales[2];
+                break;
+            default:
+                offset = Constants.TREES_OFFSET;
+                scale = _scales[3];
+                break;
+        }
+
+        //            offset from 0, 0 | tile coordinates to perlin noise grid | scale of the noise
+        float xCoord = offset + _seed + ((float)x / _tileCount + _chunkXCoord) * scale;
+        float yCoord = offset + _seed + ((float)y / _tileCount + _chunkYCoord) * scale;
         return Mathf.PerlinNoise(xCoord, yCoord);
     }
 

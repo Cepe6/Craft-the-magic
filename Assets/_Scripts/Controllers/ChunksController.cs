@@ -13,11 +13,11 @@ public class ChunksController : MonoBehaviour {
     [SerializeField]
     private int _tileSize = 10;
     [SerializeField]
-    private float _biomesScale = 20;
-    [SerializeField]
     private int _seed;
     [SerializeField]
     private int _fieldOfView = 3;
+    [SerializeField]
+    private float[] _scales;
 
     private int _chunkSize;
 
@@ -69,9 +69,9 @@ public class ChunksController : MonoBehaviour {
     {
         GameObject instance = Instantiate(_chunkPrefab);
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
-        instance.name = "Chunk " + new Vector2(coordinates.x, coordinates.y);
+        instance.name = "Chunk " + coordinates;
         instance.transform.parent = chunkWrapper.transform;
-        instance.GetComponent<Chunk>().InitializeChunk(coordinates.x, coordinates.y, _chunkTileSize, _tileSize, _biomesScale, _seed);
+        instance.GetComponent<Chunk>().InitializeChunk(coordinates, _scales, _seed);
         instance.GetComponent<Chunk>().GenerateMesh();
         _generatedChunks.Add(instance);
         instance.SetActive(false);
