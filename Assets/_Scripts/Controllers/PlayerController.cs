@@ -27,10 +27,10 @@ public class PlayerController : MonoBehaviour {
 
     //Executed every frame. The player movement function
     private void Move() {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-        if(x != 0f || z != 0f) { 
-            Vector3 movementDir = new Vector3(Mathf.CeilToInt(x), 0f, Mathf.CeilToInt(z));
+        float horizontalAxis = Input.GetAxis("Horizontal");
+        float verticalAxis = Input.GetAxis("Vertical");
+        if(horizontalAxis != 0f || verticalAxis != 0f) { 
+            Vector3 movementDir = new Vector3(Mathf.CeilToInt(horizontalAxis), 0f, Mathf.CeilToInt(verticalAxis));
             transform.position += movementDir * _movementSpeed * Time.deltaTime;
             transform.rotation = Quaternion.LookRotation(movementDir);
         }

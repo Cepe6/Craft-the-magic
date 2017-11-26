@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ public class ChunksController : MonoBehaviour {
     [SerializeField]
     private GameObject _player;
     [SerializeField]
-    private int _chunkTileSize = 64;
+    private int _chunkTileCount = 64;
     [SerializeField]
     private int _tileSize = 10;
     [SerializeField]
@@ -22,17 +21,13 @@ public class ChunksController : MonoBehaviour {
     private int _chunkSize;
 
     List<GameObject> _generatedChunks = new List<GameObject>();
-    bool _enabledStartingArea = false;
-
-    Vector2 _movementDisableCoordinates;
-    Vector2 _lastFrameCoordinates;
 
     GameObject chunkWrapper;
  
     // Use this for initialization
     void Awake()
     {
-        _chunkSize = _tileSize * _chunkTileSize;
+        _chunkSize = _tileSize * _chunkTileCount;
         chunkWrapper = new GameObject("Chunk wrapper");
     }
 
@@ -61,12 +56,11 @@ public class ChunksController : MonoBehaviour {
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
         instance.name = "Chunk " + coordinates;
         instance.transform.parent = chunkWrapper.transform;
-        instance.GetComponent<Chunk>().InitializeChunk(coordinates, _scales, _seed);
-        instance.GetComponent<Chunk>().GenerateMesh();
+        instance.GetComponent<Chunk>().InitializeChunk(coordinates, _tileSize, _chunkTileCount, _seed);
         _generatedChunks.Add(instance);
     }
 
-    //Get list of not generated chunks around the coordinates point with range _fieldOfView + 2
+    //Get list of not generated chunks around the coordinates point with range _fieldOfView
     private List<Vector2> GetListOfNotGeneratedChunksAround(Vector2 coordinates)
     {
         List<Vector2> chunks = new List<Vector2>();

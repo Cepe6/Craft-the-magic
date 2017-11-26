@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour {
+
+    //REFACTOR
     [SerializeField]
     private Material _uvTexture;
     [SerializeField]
     private int _spriteSheetSize = 2;
-    [SerializeField]
+
     private int _tileCount;
-    [SerializeField]
-    private int _tileSize;
+    private float _tileSize;
 
     private int _seed;
     private float[] _scales;
 
-    private int[,] _blocks;
+    private int[,,] _blocks;
 
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
@@ -23,45 +24,61 @@ public class Chunk : MonoBehaviour {
 
     private float _chunkXCoord;
     private float _chunkYCoord;
-    
+
+    private PerlinNoiseGenerator _perlinNoiseGenerator;
+
     // Use this for initialization
     void Awake () {
         _meshRenderer = GetComponent<MeshRenderer>();
         _meshFilter = GetComponent<MeshFilter>();
         _mesh = _meshFilter.mesh;
+
+        _perlinNoiseGenerator = new PerlinNoiseGenerator();
     }
 
-    public void InitializeChunk(Vector2 coordinates, float[] scales, int seed)
+    public void InitializeChunk(Vector2 coordinates, float tileSize, int tileCount, int seed)
     {
-        _scales = scales;
+        _tileCount = tileCount;
+        _tileSize = tileSize;
         _chunkXCoord = coordinates.x;
         _chunkYCoord = coordinates.y;
         _seed = seed;
-        _blocks = new int[_tileCount, _tileCount];
+        _blocks = new int[3, _tileCount, _tileCount];
         GenerateChunk();
     }
 
     public void GenerateChunk()
     {
+        InitializeBiomes();
+        InitializeWater();
+        GenerateWater();
+        GenerateBiomes();
+
+
+        InitializeResources();
+        GenerateResources();
+
+        InitializeTrees();
+        GenerateTrees();
+    }
+
+    private void InitializeBiomes()
+    {
         for (int i = 0; i < _tileCount; i++)
         {
             for (int j = 0; j < _tileCount; j++)
             {
-                _blocks[i, j] = 0;
+                _blocks[0, i, j] = 0;
 
                 float perlinValue = PerlinValue(i, j, 0);
-                if (perlinValue < .30f)
+                if (perlinValue < .90f)
                 {
-                    _blocks[i, j] = 1;
-                } else if (perlinValue < .35f)
-                {
-                    _blocks[i, j] = 2;
+                    _blocks[0, i, j] = 1;
                 }
             }
         }
     }
-
-    public void GenerateMesh()
+    private void GenerateBiomes()
     {
         List<Vector3> verticies = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -73,11 +90,11 @@ public class Chunk : MonoBehaviour {
         {
             for (int y = 0; y < _tileCount; y++)
             {
-                int id = _blocks[x, y];
+                int id = _blocks[0, x, y];
 
                 //Create the verticies
-                int xCoord = (x) * _tileSize;
-                int yCoord = (y) * _tileSize;
+                float xCoord = (x) * _tileSize;
+                float yCoord = (y) * _tileSize;
                 verticies.Add(new Vector3(xCoord, yCoord, 0));
                 verticies.Add(new Vector3(xCoord + _tileSize, yCoord, 0));
                 verticies.Add(new Vector3(xCoord + _tileSize, yCoord - _tileSize, 0));
@@ -121,35 +138,70 @@ public class Chunk : MonoBehaviour {
         //Initialize tiles texures
         GetComponent<Renderer>().material = _uvTexture;
     }
-	
-    //Generate perlin value for x, y of type (0 = Biome; 1 = Water; 2 = Resource; 3 = Tree)
-    private float PerlinValue(int x, int y, int type)
+
+    private void InitializeWater()
+    {
+        for (int i = 0; i < _tileCount; i++)
+        {
+            for (int j = 0; j < _tileCount; j++)
+            {
+                float perlinValue = PerlinValue(i, j, 1);
+                if (perlinValue < .70f)
+                {
+                    _blocks[0, i, j] = 2;
+                }
+            }
+        }
+    }
+    private void GenerateWater()
+    {
+
+    }
+
+    private void InitializeResources()
+    {
+
+    }
+    private void GenerateResources()
+    {
+
+    }
+
+    private void InitializeTrees()
+    {
+
+    }
+    private void GenerateTrees()
+    {
+
+    }
+
+    //Generate perlin value for x, y of layer (0 = Biome; 1 = Water; 2 = Resource; 3 = Tree)
+    private float PerlinValue(int x, int y, int layer)
     {
         int offset;
-        float scale;
-        switch(type)
+        switch(layer)
         {
             case 0: offset = Constants.BIOMES_OFFSET;
-                scale = _scales[0];
+                _perlinNoiseGenerator.SetFrequency(500f);
+                _perlinNoiseGenerator.SetOctaves(8);
                 break;
             case 1:
                 offset = Constants.WATER_OFFSET;
-                scale = _scales[1];
+                _perlinNoiseGenerator.SetFrequency(250f);
+                _perlinNoiseGenerator.SetOctaves(6);
                 break;
             case 2:
                 offset = Constants.RESOURCES_OFFSET;
-                scale = _scales[2];
                 break;
             default:
                 offset = Constants.TREES_OFFSET;
-                scale = _scales[3];
                 break;
         }
-
-        //            offset from 0, 0 | tile coordinates to perlin noise grid | scale of the noise
-        float xCoord = offset + _seed + ((float)x / _tileCount + _chunkXCoord) * scale;
-        float yCoord = offset + _seed + ((float)y / _tileCount + _chunkYCoord) * scale;
-        return Mathf.PerlinNoise(xCoord, yCoord);
+        
+        float xCoord = offset + (x + _chunkXCoord * _tileCount);
+        float yCoord = offset + (y + _chunkYCoord * _tileCount);
+        return _perlinNoiseGenerator.GetPerlinNoiseValueAt(xCoord, yCoord);
     }
 
     public Vector2 GetCoordinates()
