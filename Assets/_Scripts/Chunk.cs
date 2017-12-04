@@ -9,9 +9,12 @@ public class Chunk : MonoBehaviour {
     private Material _uvTexture;
     [SerializeField]
     private int _spriteSheetSize = 2;
+    [SerializeField]
+    private GameObject _colliderBlock;
 
     private int _tileCount;
     private float _tileSize;
+    private float _chunkSize;
 
     private int _seed;
     private float[] _scales;
@@ -49,8 +52,8 @@ public class Chunk : MonoBehaviour {
 
     public void GenerateChunk()
     {
-        InitializeBiomes();
         InitializeWater();
+        InitializeBiomes();
         GenerateWater();
         GenerateBiomes();
 
@@ -68,6 +71,12 @@ public class Chunk : MonoBehaviour {
         {
             for (int j = 0; j < _tileCount; j++)
             {
+                if(_blocks[1, i, j] != 0)
+                {
+                    _blocks[0, i, j] = -1;
+                    continue;
+                }
+
                 _blocks[0, i, j] = 0;
 
                 float perlinValue = PerlinValue(i, j, 0);
@@ -90,7 +99,7 @@ public class Chunk : MonoBehaviour {
         {
             for (int y = 0; y < _tileCount; y++)
             {
-                int id = _blocks[0, x, y];
+                int id = _blocks[0, x, y] == -1 ? _blocks[1, x, y] : _blocks[0, x, y];
 
                 //Create the verticies
                 float xCoord = (x) * _tileSize;
@@ -145,17 +154,52 @@ public class Chunk : MonoBehaviour {
         {
             for (int j = 0; j < _tileCount; j++)
             {
+                _blocks[1, i, j] = 0;
                 float perlinValue = PerlinValue(i, j, 1);
-                if (perlinValue < .70f)
+                if (perlinValue < .60f)
                 {
-                    _blocks[0, i, j] = 2;
+                    _blocks[1, i, j] = 10;
+                } else if(perlinValue < .65f)
+                {
+                    _blocks[1, i, j] = 6;
+                } else if(perlinValue < .70f)
+                {
+                    _blocks[1, i, j] = 2; 
                 }
             }
         }
     }
     private void GenerateWater()
     {
+        for(int i = 0; i < _tileCount; i++)
+        {
+            for (int j = 0; j < _tileCount; j++)
+            {
+                if (_blocks[1, i, j] != 0)
+                {
+                    if (IsGroundAround(i, j))
+                    {
+                        Instantiate(_colliderBlock, new Vector3(i * _tileSize + transform.position.x, 0f, (j - 1) * _tileSize + transform.position.z), Quaternion.identity, transform);
+                    }
+                }
+            }
+        }
+    }
 
+    private bool IsGroundAround(int x, int y)
+    {
+        for(int i = -1; i < 2; i++)
+        {
+            for(int j = -1; j < 2; j++)
+            {
+                if(PerlinValue(x + i, y + j, 1) >= .70f)
+                {
+                    return true;
+                } 
+            }
+        }
+
+        return false;
     }
 
     private void InitializeResources()
@@ -208,7 +252,11 @@ public class Chunk : MonoBehaviour {
     {
         return new Vector2(_chunkXCoord, _chunkYCoord);
     }
-
+    
+    public int[,,] GetTilesMap()
+    {
+        return _blocks;
+    }
 	// Update is called once per frame
 	void Update () {
 

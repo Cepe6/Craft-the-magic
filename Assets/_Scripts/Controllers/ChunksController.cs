@@ -15,8 +15,6 @@ public class ChunksController : MonoBehaviour {
     private int _seed;
     [SerializeField]
     private int _fieldOfView = 3;
-    [SerializeField]
-    private float[] _scales;
 
     private int _chunkSize;
 
