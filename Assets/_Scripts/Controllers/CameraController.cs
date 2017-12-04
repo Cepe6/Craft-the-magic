@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         Vector3 pos = _player.transform.position;
         pos.y += _cameraHeight;
