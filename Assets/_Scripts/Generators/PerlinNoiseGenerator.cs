@@ -3,33 +3,79 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PerlinNoiseGenerator {
-    private float _amplitude = 1.0f;
-    private float _frequency = 500f;
-    private int _octaves = 8;
-
-    public void SetAmplitude(float amplitude)
+      public int[,] GenerateBiomesMap(float chunkX, float chunkY)
     {
-        _amplitude = amplitude;
+        int[,] map = new int[64, 64];
+        float offset = Constants.BIOMES_OFFSET;
+
+        for (int x = 0; x < 64; x++)
+        {
+            for (int y = 0; y < 64; y++)
+            {
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkX), offset + (y + chunkY), 500f, 8);
+
+                map[x, y] = 0;
+                if(perlinValue < .9f)
+                {
+                    map[x, y] = 1;
+                }
+            }
+        }
+
+        return map;
     }
 
-    public void SetFrequency(float frequency)
+    public int[,] GenerateWaterMap(float chunkX, float chunkY)
     {
-        _frequency = frequency;
+        int[,] map = new int[66, 66];
+        float offset = Constants.WATER_OFFSET;
+
+        for (int x = 0; x < 66; x++)
+        {
+            for (int y = 0; y < 66; y++)
+            {
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkX - 1), offset + (y + chunkY - 1), 150f - 25f * WorldSettings.WATER_FREQUENCY, 6);
+
+                map[x, y] = 0;
+                if (perlinValue < .5f + .05f * WorldSettings.WATER_SIZE)
+                {
+                    map[x, y] = 3;
+                } else if(perlinValue < .55f + .05f * WorldSettings.WATER_SIZE)
+                {
+                    map[x, y] = 2;
+                } else if(perlinValue < .6f + .05f * WorldSettings.WATER_SIZE)
+                {
+                    map[x, y] = 1;
+                }
+            }
+        }
+
+        return map;        
     }
 
-    public void SetOctaves(int octaves)
+    public int[,] GenerateIronOreMap(float chunkX, float chunkY)
     {
-        _octaves = octaves;
+        return null;
     }
 
-    public float GetPerlinNoiseValueAt(float x, float y)
+    public int[,] GenerateCopperOreMap(float chunkX, float chunkY)
+    {
+        return null;
+    }
+
+    public int[,] GenerateCoalMap(float chunkX, float chunkY)
+    {
+        return null;
+    }
+
+    private float GetPerlinNoiseValueAt(float x, float y, float frequency, int octaves)
     {
         float returnValue = 0f;
 
         float gain = 1.0f;
-        for (int i = 0; i < _octaves; i++)
+        for (int i = 0; i < octaves; i++)
         { 
-            returnValue += Mathf.PerlinNoise(x * gain / _frequency, y * gain / _frequency) * _amplitude / gain;
+            returnValue += Mathf.PerlinNoise(x * gain / frequency, y * gain / frequency) / gain;
             gain *= 2.0f;
         }
 
