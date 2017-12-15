@@ -17,6 +17,13 @@ public class Chunk : MonoBehaviour {
 
     private int _seed;
 
+    //This variable contains the data sets as ints for all the layer masks of a chunk
+    //0 -> Textures layer (used for storing the IDs of the tiles and later used to get their texture in the sprite sheet
+    //1 -> Biomes layer (used for storing the IDs of the biomes on tiles - for example tile with ID=1 has grassland biome on it)
+    //2 -> Iron Ore layer (used for storing 0 or 1 (0 for no iron ore on that tile and 1 for present iron ore on that tile)
+    //3 -> Copper Ore layer (as iron ore layer)
+    //4 -> Coal layer (as #2 and #3)
+    //5 -> Water layer (0 for no water on that tile and 1 for present water on that tile)
     private Dictionary<int, int[,]> _tilesMap;
 
     private MeshRenderer _meshRenderer;
@@ -69,8 +76,6 @@ public class Chunk : MonoBehaviour {
         _tilesMap.Add(2, _perlinNoiseGenerator.GenerateIronOreMap(_chunkXCoord * _tileCount, _chunkYCoord * _tileCount));
         _tilesMap.Add(3, _perlinNoiseGenerator.GenerateCopperOreMap(_chunkXCoord * _tileCount, _chunkYCoord * _tileCount));
         _tilesMap.Add(4, _perlinNoiseGenerator.GenerateCoalMap(_chunkXCoord * _tileCount, _chunkYCoord * _tileCount));
-
-      
     }
 
     private void InitializeWater()
@@ -97,23 +102,6 @@ public class Chunk : MonoBehaviour {
 
         _tilesMap.Add(5, waterMap);
     }
-
-    //private void GenerateWaterCollider()
-    //{
-    //    for (int i = 0; i < _tileCount; i++)
-    //    {
-    //        for (int j = 0; j < _tileCount; j++)
-    //        {
-    //            if (_blocks[1, i, j] == 1)
-    //            {
-    //                if (IsGroundAround(i, j))
-    //                {
-    //                    Instantiate(_colliderBlock, new Vector3(i * _tileSize + transform.position.x, 0f, (j - 1) * _tileSize + transform.position.z), Quaternion.identity, transform);
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
 
     private bool IsGroundAround(int x, int y, int[,] waterMap)
     {
@@ -237,17 +225,9 @@ public class Chunk : MonoBehaviour {
         //Initialize tiles texures
         GetComponent<Renderer>().material = _uvTexture;
     }
-
-
     
     public Vector2 GetCoordinates()
     {
         return new Vector2(_chunkXCoord, _chunkYCoord);
-    }
-    
-
-	// Update is called once per frame
-	void Update () {
-
     }
 }
