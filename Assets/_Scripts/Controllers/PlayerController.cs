@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody _rigidbody;
     private Quaternion _lastRotation = new Quaternion(0f, 0f, 0f, 0f);
 
+    private bool _controlsEnabled = true;
+
     // Use this for initialization
     void Start()
     {
@@ -19,7 +21,7 @@ public class PlayerController : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate()
     {
-        Move();
+         Move();
     }
 
     //Executed every frame. The player movement function
@@ -28,7 +30,7 @@ public class PlayerController : MonoBehaviour {
         float horizontalAxis = Input.GetAxis("Horizontal");
         float verticalAxis = Input.GetAxis("Vertical");
         Vector3 movementDir = Vector3.zero;
-        if (horizontalAxis != 0f || verticalAxis != 0f)
+        if ((horizontalAxis != 0f || verticalAxis != 0f) && _controlsEnabled)
         {
             movementDir = new Vector3(Mathf.CeilToInt(horizontalAxis), 0f, Mathf.CeilToInt(verticalAxis));
             transform.rotation = Quaternion.LookRotation(movementDir);
@@ -37,6 +39,16 @@ public class PlayerController : MonoBehaviour {
         {
             _rigidbody.velocity = Vector3.zero;
         } 
+    }
+
+    public void EnableControls()
+    {
+        _controlsEnabled = true;
+    }
+
+    public void DisableControls()
+    {
+        _controlsEnabled = false;
     }
 }
 
