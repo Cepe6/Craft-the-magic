@@ -49,7 +49,6 @@ public class InputManager : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
         {
-            Debug.Log("Clicked one");
             _uiController.ChangeHotbarPosition(1);
         } else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
         {
