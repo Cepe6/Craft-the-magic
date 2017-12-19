@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour {
     //Player movement variables
     [SerializeField]
     private float _movementSpeed = 5f;
+    [SerializeField]
+    private ChunksController _chunksController;
 
     private Rigidbody _rigidbody;
     private Quaternion _lastRotation = new Quaternion(0f, 0f, 0f, 0f);
@@ -30,8 +32,11 @@ public class PlayerController : MonoBehaviour {
         Vector3 movementDir = Vector3.zero;
         if (horizontalAxis != 0f || verticalAxis != 0f)
         {
-            movementDir = new Vector3(Mathf.CeilToInt(horizontalAxis), 0f, Mathf.CeilToInt(verticalAxis));
+            movementDir = new Vector3(Mathf.Ceil(horizontalAxis), 0f, Mathf.Ceil(verticalAxis));
             transform.rotation = Quaternion.LookRotation(movementDir);
+            movementDir.x *= _chunksController.IsWalkable(transform.position.x + movementDir.x * 2, transform.position.z);
+            movementDir.z *= _chunksController.IsWalkable(transform.position.x, transform.position.z + movementDir.z * 2);
+
             _rigidbody.velocity = movementDir * _movementSpeed;
         } else
         {

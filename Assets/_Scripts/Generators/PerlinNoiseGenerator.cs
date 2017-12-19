@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PerlinNoiseGenerator {
-      public int[,] GenerateBiomesMap(float chunkX, float chunkY)
-    {
+public static class PerlinNoiseGenerator {
+     public static int[,] GenerateBiomesMap(Vector2 chunkCoordinates)
+     {
+        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+
         int[,] map = new int[64, 64];
         float offset = Constants.BIOMES_OFFSET;
 
@@ -12,7 +14,7 @@ public class PerlinNoiseGenerator {
         {
             for (int y = 0; y < 64; y++)
             {
-                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkX), offset + (y + chunkY), 500f, 8);
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkCoordinates.x), offset + (y + chunkCoordinates.y), 500f, 8);
 
                 map[x, y] = 0;
                 if(perlinValue < .9f)
@@ -25,8 +27,9 @@ public class PerlinNoiseGenerator {
         return map;
     }
 
-    public int[,] GenerateWaterMap(float chunkX, float chunkY)
+    public static int[,] GenerateWaterMap(Vector2 chunkCoordinates)
     {
+        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
         int[,] map = new int[66, 66];
         float offset = Constants.WATER_OFFSET;
 
@@ -34,7 +37,7 @@ public class PerlinNoiseGenerator {
         {
             for (int y = 0; y < 66; y++)
             {
-                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkX - 1), offset + (y + chunkY - 1), 150f - 25f * WorldSettings.WATER_FREQUENCY, 6);
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkCoordinates.x - 1), offset + (y + chunkCoordinates.y - 1), 150f - 25f * WorldSettings.WATER_FREQUENCY, 6);
 
                 map[x, y] = 0;
                 if (perlinValue < .5f + .05f * WorldSettings.WATER_SIZE)
@@ -53,22 +56,25 @@ public class PerlinNoiseGenerator {
         return map;        
     }
 
-    public int[,] GenerateIronOreMap(float chunkX, float chunkY)
+    public static int[,] GenerateIronOreMap(Vector2 chunkCoordinates)
     {
+        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
         return null;
     }
 
-    public int[,] GenerateCopperOreMap(float chunkX, float chunkY)
+    public static int[,] GenerateCopperOreMap(Vector2 chunkCoordinates)
     {
+        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
         return null;
     }
 
-    public int[,] GenerateCoalMap(float chunkX, float chunkY)
+    public static int[,] GenerateCoalMap(Vector2 chunkCoordinates)
     {
+        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
         return null;
     }
 
-    private float GetPerlinNoiseValueAt(float x, float y, float frequency, int octaves)
+    private static float GetPerlinNoiseValueAt(float x, float y, float frequency, int octaves)
     {
         float returnValue = 0f;
 
