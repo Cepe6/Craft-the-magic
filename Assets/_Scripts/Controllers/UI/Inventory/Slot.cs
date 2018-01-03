@@ -1,0 +1,330 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Linq;
+
+[System.Serializable]
+public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+{
+    [SerializeField]
+    private Item _item;
+    [SerializeField]
+    private int _ammount;
+    
+    [SerializeField]
+    private Image _itemIcon ;
+    [SerializeField]
+    private Text _itemAmmount;
+
+    [SerializeField]
+    private GameObject _dragContainer ;
+    [SerializeField]
+    private bool _filtered ;
+    [SerializeField]
+    private List<Item> _allowedItems;
+
+    [SerializeField]
+    private Color _highlightOnHover ;
+    private Color _originalColor;
+
+    [SerializeField]
+    private bool _inventorySlot = true;
+
+    private bool _hovered = false;
+
+    private void Awake()
+    {
+        _originalColor = GetComponent<Image>().color;
+        if(_item != null)
+        {
+            InitItem(_item, _ammount);
+        }
+
+    }
+
+    private void Update()
+    {
+        if (_ammount == 0 || _item == null)
+        {
+            _item = null;
+
+            _itemAmmount.gameObject.SetActive(false);
+            _itemIcon.gameObject.SetActive(false);
+        }
+        else
+        {
+            if(!_itemAmmount.gameObject.activeSelf && _item.isStackable) { _itemAmmount.gameObject.SetActive(true); }
+            if(!_itemIcon.gameObject.activeSelf) { _itemIcon.gameObject.SetActive(true); }
+
+            _itemAmmount.text = _ammount.ToString();
+        }
+
+        if(_ammount > Constants.MAX_STACK_AMMOUNT) { _ammount = Constants.MAX_STACK_AMMOUNT; }
+    }
+
+    public void InitItem(Item newItem, int ammount)
+    {
+        _item = newItem;
+        if (item.isStackable)
+        {
+            _ammount = ammount;
+        } else
+        {
+            _ammount = 1;
+        }
+         
+        _itemIcon.sprite = newItem.itemIcon;
+    }
+
+    public void TakeHalfStack()
+    {
+        int halfAmmount = (int)Mathf.Ceil(_ammount / 2f);
+        _ammount -= halfAmmount;
+
+        GameObject dragContainer = Instantiate(_dragContainer, Input.mousePosition, Quaternion.identity, GameObject.FindGameObjectWithTag("Canvas").transform);
+        dragContainer.GetComponent<DragContainer>().InitItem(item, halfAmmount);
+    }
+
+    public void TakeFullStack()
+    {
+        GameObject dragContainer = Instantiate(_dragContainer, Input.mousePosition, Quaternion.identity, GameObject.FindGameObjectWithTag("Canvas").transform);
+        dragContainer.GetComponent<DragContainer>().InitItem(item, _ammount);
+
+        _ammount = 0;
+    }
+
+    public int AddToAmmountAndReturnRemaining(int ammount)
+    {
+        if (_ammount + ammount < Constants.MAX_STACK_AMMOUNT)
+        {
+            _ammount += ammount;
+            return 0;
+        }
+        else
+        {
+            int returnVal = _ammount + ammount - Constants.MAX_STACK_AMMOUNT;
+            _ammount = Constants.MAX_STACK_AMMOUNT;
+            return returnVal;
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        //If the slot is clicked without a container being dragged then we are going to interact with the slot directly
+        if(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED == null && _item != null)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                //IF the shift is being held... then we are going to transfer items between inventories (hotbar-inventory, inventory-ore_gatherer_inventory, etc.)
+                if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    //IF the item is from the player inventory, then we know we will be transferring it to the currently open inventory from some machine or the hotbar if there is no machine inventory open
+                    if(_inventorySlot) {
+                        HotBarController _hotbar = GameObject.FindGameObjectWithTag("Hotbar").GetComponent<HotBarController>();
+                        _ammount = _hotbar.AddItemAndReturnRemainingAmmount(_item, _ammount);
+                    }
+                    
+                    //Else we know that we need to transfer item from the currently open machine inventory to the player inventory
+                    else
+                    {
+                        GameObject _inventory = GameObject.FindGameObjectWithTag("Inventory");
+                        if(_inventory == null)
+                        {
+                            return;
+                        }
+
+                        InventoryController _inventoryController = _inventory.GetComponent<InventoryController>();
+
+                        _ammount = _inventoryController.AddItemAndReturnRemainingAmmount(_item, _ammount);
+                    }
+                }
+                //Else the shift is not being held and we are going to take the full ammount of the item in the slot and create a new drag container with it
+                else { 
+                    TakeFullStack();
+                }
+          
+            }
+
+            //Else if the button clicked is the right mouse button we will take only half the current ammount of the item in the slot and create a new drag container with it
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                TakeHalfStack();
+            }
+        }
+
+        //Else the slot is clicked and we have a container being dragged, execute interaction between the slot and the container
+        else if(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
+        {
+            //IF this slot is filtered to only some items then we will check if the item in the drag container is in the list of allowed items IF it is not in the list then we just return
+            if(_filtered)
+            {
+                if (_allowedItems.Where(item => GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item.Equals(item)).SingleOrDefault() == null)
+                {
+                    return;
+                } 
+            }
+
+            //IF the left mouse button is clicked
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+
+                //IF there is no item in this slot, drop the item from the drag container into the slot
+                if (_item == null)
+                {
+                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = 0;
+                }
+
+                //IF items are equal then add ammount form the drag container
+                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+                {
+                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = AddToAmmountAndReturnRemaining(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                }
+
+                //IF items are different swap them
+                else
+                {
+                    Item tempItem = _item;
+                    int tempAmmount = _ammount;
+
+                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.InitItem(tempItem, tempAmmount);
+                }
+            }
+
+            //ELSE IF the right mouse button is clicked
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+
+                //IF there is no item, initialize the slot with this item with ammount of one and decrease the ammount from the drag container with 1
+                if (_item == null)
+                {
+                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 1);
+                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+                }
+
+                //IF the item in the slot is equal then just increase its ammount if possible and decrease the ammount in the drag container
+                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+                {
+                    if (_ammount < Constants.MAX_STACK_AMMOUNT)
+                    {
+                        _ammount++;
+                        GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+                    }
+                }
+            }
+
+            //ELSE IF the middle mouse button is clicked
+            else if (eventData.button == PointerEventData.InputButton.Middle)
+            {
+                //IF the item is null first initialize it for the item in the container and then execute the mouse wheel control coroutine
+                if (_item == null)
+                {
+                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 0);
+                    StartCoroutine(MouseWheelControl());
+                }
+
+                //IF the item is equal to the drag container ammount then execute the mouse wheel control coroutine
+                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item)) {
+                    StartCoroutine(MouseWheelControl());
+                }
+            }
+        }
+    }
+
+    private IEnumerator MouseWheelControl()
+    {
+        while (true)
+        {
+            //IF escape btn is clicked or the mouse left or right buttons or the drag container has been destroyed or the ammount of the item in this slot has reached 0 then we exit the  loop and finish the mouse wheel control
+            if (Input.GetButton("Cancel") 
+                || Input.GetMouseButton(0) 
+                || Input.GetMouseButton(1) 
+                || _item == null 
+                || GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED == null 
+                || _ammount == 0)
+            {
+                break;
+            }
+
+            //Disable the cursor so we can clearly see the ammount of the items in both this slot and the drag container
+            Cursor.visible = false;
+
+            //Get the mouse wheel value then increase/decrease currentAmmount and decrease/increase the ammount of the item in the container based on the value of mouseWheelValue
+            float mouseWheelValue = Input.GetAxis("Mouse ScrollWheel");
+            if (mouseWheelValue > 0 && _ammount > 0 && GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount < 99)
+            {
+                _ammount--;
+                GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount++;
+            } else if(mouseWheelValue < 0 && _ammount < 99 && GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount > 0)
+            {
+
+                _ammount++;
+                GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+            }
+            yield return null;
+        }
+        
+        //Make the cursor visible again since we finished the controlling with the mouse wheel
+        Cursor.visible = true;
+        yield return null;
+    }
+
+
+    public bool IsFiltered()
+    {
+        return _filtered;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        GetComponent<Image>().color = _highlightOnHover;
+        _hovered = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        GetComponent<Image>().color = _originalColor;
+        _hovered = false;
+    }
+
+    private void OnDisable()
+    {
+        if(_hovered)
+        {
+            GetComponent<Image>().color = _originalColor;
+        }
+    }
+
+    public void CopySlotProperties(Slot targetSlot)
+    {
+        _item = targetSlot._item;
+        _ammount = targetSlot._ammount;
+    }
+
+    public void Nullify()
+    {
+        _item = null;
+        _ammount = 0;
+    }
+
+    public Item item
+    {
+        get { return _item; }
+        set
+        {
+            _item = value;
+        }
+    }
+
+    public int currentAmmount
+    {
+        get { return _ammount; }
+        set
+        {
+            _ammount = value;
+        }
+    }
+}

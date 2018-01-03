@@ -141,6 +141,7 @@ public class Chunk : MonoBehaviour {
         _mesh.Clear();
         _mesh.vertices = verticies.ToArray();
         _mesh.triangles = triangles.ToArray();
+        
         _mesh.uv = uv.ToArray();
         _mesh.RecalculateNormals();
 
