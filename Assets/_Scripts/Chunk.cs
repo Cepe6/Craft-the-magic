@@ -168,7 +168,6 @@ public class Chunk : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Collided with: " + _chunkCoordinates);
         if (!_visited)
         {
             _chunksController.GenerateChunksAround(_chunkCoordinates);
