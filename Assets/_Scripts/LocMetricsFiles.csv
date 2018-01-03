@@ -1,0 +1,19 @@
+File,LOC,SLOC-P,SLOC-L,MVG,BLOC,C&SLOC,CLOC,CWORD,HCLOC,HCWORD
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Chunk.cs,266,210,137,26,46,0,10,68,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Constants.cs,9,7,6,0,2,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\GlobalNonConstantVariables.cs,5,4,2,0,1,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\InputManager.cs,83,72,44,5,9,0,2,10,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\CameraController.cs,32,26,17,0,4,0,2,10,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\ChunksController.cs,81,64,40,5,12,0,5,36,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\PlayerController.cs,55,41,26,1,10,0,4,20,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\UIController.cs,36,29,17,1,7,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\Inventory\DragContainer.cs,76,62,39,3,14,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\Inventory\HotBarController.cs,67,49,29,5,18,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\Inventory\InventoryController.cs,80,62,36,11,16,0,2,31,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\Inventory\Slot.cs,286,218,124,25,46,0,22,447,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Editors\InventoryEditor.cs,20,12,8,0,6,0,2,10,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Editors\ItemEditor.cs,25,20,16,0,5,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Editors\SlotEditor.cs,40,31,22,2,9,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Enum\ItemsEnum.cs,5,4,1,0,1,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Generators\PerlinNoiseGenerator.cs,39,31,20,2,8,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\ScriptableObjects\Item.cs,10,8,5,0,2,0,0,0,0,0
