@@ -5,10 +5,10 @@ using UnityEngine;
 public static class PerlinNoiseGenerator {
      public static int[,] GenerateBiomesMap(Vector2 chunkCoordinates)
      {
-        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+        chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
 
         int[,] map = new int[64, 64];
-        float offset = Constants.BIOMES_OFFSET;
+        float offset = GlobalVariables.BIOMES_OFFSET;
 
         for (int x = 0; x < 64; x++)
         {
@@ -29,9 +29,9 @@ public static class PerlinNoiseGenerator {
 
     public static int[,] GenerateWaterMap(Vector2 chunkCoordinates)
     {
-        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+        chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
         int[,] map = new int[66, 66];
-        float offset = Constants.WATER_OFFSET;
+        float offset = GlobalVariables.WATER_OFFSET;
 
         for (int x = 0; x < 66; x++)
         {
@@ -58,19 +58,19 @@ public static class PerlinNoiseGenerator {
 
     public static int[,] GenerateIronOreMap(Vector2 chunkCoordinates)
     {
-        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+        chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
         return null;
     }
 
     public static int[,] GenerateCopperOreMap(Vector2 chunkCoordinates)
     {
-        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+        chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
         return null;
     }
 
     public static int[,] GenerateCoalMap(Vector2 chunkCoordinates)
     {
-        chunkCoordinates *= Constants.TILE_PER_CHUNK_AXIS;
+        chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
         return null;
     }
 

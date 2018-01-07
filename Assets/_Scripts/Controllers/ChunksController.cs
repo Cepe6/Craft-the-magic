@@ -10,6 +10,8 @@ public class ChunksController : MonoBehaviour {
     [SerializeField]
     private int _fieldOfView = 3;
 
+    private int _chunkSize = GlobalVariables.TILE_PER_CHUNK_AXIS * GlobalVariables.TILE_SIZE;
+
     List<GameObject> _generatedChunks = new List<GameObject>();
 
     GameObject chunkWrapper;
@@ -20,7 +22,7 @@ public class ChunksController : MonoBehaviour {
         chunkWrapper = new GameObject("Chunk wrapper");
 
         Vector3 playerPosition = _player.transform.position;
-        Vector2 coordinates = new Vector2((int)Mathf.Floor(playerPosition.x / Constants.CHUNK_SIZE_AXIS), (int)Mathf.Floor(playerPosition.z / Constants.CHUNK_SIZE_AXIS));
+        Vector2 coordinates = new Vector2((int)Mathf.Floor(playerPosition.x / _chunkSize) - playerPosition.x < 0 ? 1 : 0, (int)Mathf.Floor(playerPosition.z / _chunkSize) - playerPosition.z < 0 ? 1 : 0);
         GenerateChunksAround(coordinates);
     }
 
@@ -38,7 +40,7 @@ public class ChunksController : MonoBehaviour {
     private void InstantiateChunkAt(Vector2 coordinates)
     {
         GameObject instance = Instantiate(_chunkPrefab);
-        instance.transform.position = new Vector3(coordinates.x * Constants.CHUNK_SIZE_AXIS, 0f, coordinates.y * Constants.CHUNK_SIZE_AXIS);
+        instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
         instance.name = "Chunk " + coordinates;
         instance.transform.parent = chunkWrapper.transform;
         instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y));
@@ -69,7 +71,7 @@ public class ChunksController : MonoBehaviour {
     public float IsWalkable(float x, float y)
     {
         Chunk containingChunk = GetChunkFromCoords(x, y).GetComponent<Chunk>();
-        if (containingChunk.IsWalkable(Mathf.Abs((int)(x - containingChunk.GetCoordinates().x * Constants.CHUNK_SIZE_AXIS) / 10),  Mathf.Abs((int)(y - containingChunk.GetCoordinates().y * Constants.CHUNK_SIZE_AXIS)) / 10)) {
+        if (containingChunk.IsWalkable(Mathf.Abs((int)(x - containingChunk.GetCoordinates().x * _chunkSize) / 10),  Mathf.Abs((int)(y - containingChunk.GetCoordinates().y * _chunkSize)) / 10)) {
             return 1f;
         }
        
@@ -78,7 +80,7 @@ public class ChunksController : MonoBehaviour {
 
     public GameObject GetChunkFromCoords(float x, float y)
     {
-        Vector2 convertedCoords = new Vector2((int)(x / Constants.CHUNK_SIZE_AXIS) - (x < 0 ? 1 : 0), (int)(y / Constants.CHUNK_SIZE_AXIS) - (y < 0 ? 1 : 0));
+        Vector2 convertedCoords = new Vector2((int)(x / _chunkSize) - (x < 0 ? 1 : 0), (int)(y / _chunkSize) - (y < 0 ? 1 : 0));
         return _generatedChunks.Where(chunk => chunk.GetComponent<Chunk>().GetCoordinates().Equals(convertedCoords)).SingleOrDefault();
     }
 }

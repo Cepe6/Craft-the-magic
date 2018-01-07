@@ -14,7 +14,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     private int _ammount;
     
     [SerializeField]
-    private Image _itemIcon ;
+    private Image _itemIcon;
     [SerializeField]
     private Text _itemAmmount;
 
@@ -41,7 +41,6 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         {
             InitItem(_item, _ammount);
         }
-
     }
 
     private void Update()
@@ -61,7 +60,8 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             _itemAmmount.text = _ammount.ToString();
         }
 
-        if(_ammount > Constants.MAX_STACK_AMMOUNT) { _ammount = Constants.MAX_STACK_AMMOUNT; }
+        //This is if in the inventory inspector I specify item with ammount > GlobalVariables.MAX_STACK_AMMOUNT
+        if(_ammount > GlobalVariables.MAX_STACK_AMMOUNT) { _ammount = GlobalVariables.MAX_STACK_AMMOUNT; }
     }
 
     public void InitItem(Item newItem, int ammount)
@@ -97,15 +97,15 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public int AddToAmmountAndReturnRemaining(int ammount)
     {
-        if (_ammount + ammount < Constants.MAX_STACK_AMMOUNT)
+        if (_ammount + ammount < GlobalVariables.MAX_STACK_AMMOUNT)
         {
             _ammount += ammount;
             return 0;
         }
         else
         {
-            int returnVal = _ammount + ammount - Constants.MAX_STACK_AMMOUNT;
-            _ammount = Constants.MAX_STACK_AMMOUNT;
+            int returnVal = _ammount + ammount - GlobalVariables.MAX_STACK_AMMOUNT;
+            _ammount = GlobalVariables.MAX_STACK_AMMOUNT;
             return returnVal;
         }
     }
@@ -113,7 +113,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     public void OnPointerDown(PointerEventData eventData)
     {
         //If the slot is clicked without a container being dragged then we are going to interact with the slot directly
-        if(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED == null && _item != null)
+        if(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED == null && _item != null)
         {
             if (eventData.button == PointerEventData.InputButton.Left)
             {
@@ -155,12 +155,12 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
 
         //Else the slot is clicked and we have a container being dragged, execute interaction between the slot and the container
-        else if(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
+        else if(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
         {
             //IF this slot is filtered to only some items then we will check if the item in the drag container is in the list of allowed items IF it is not in the list then we just return
             if(_filtered)
             {
-                if (_allowedItems.Where(item => GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item.Equals(item)).SingleOrDefault() == null)
+                if (_allowedItems.Where(item => GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item.Equals(item)).SingleOrDefault() == null)
                 {
                     return;
                 } 
@@ -173,14 +173,14 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                 //IF there is no item in this slot, drop the item from the drag container into the slot
                 if (_item == null)
                 {
-                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
-                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = 0;
+                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = 0;
                 }
 
                 //IF items are equal then add ammount form the drag container
-                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
                 {
-                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = AddToAmmountAndReturnRemaining(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = AddToAmmountAndReturnRemaining(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
                 }
 
                 //IF items are different swap them
@@ -189,8 +189,8 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                     Item tempItem = _item;
                     int tempAmmount = _ammount;
 
-                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
-                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.InitItem(tempItem, tempAmmount);
+                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.InitItem(tempItem, tempAmmount);
                 }
             }
 
@@ -201,17 +201,17 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                 //IF there is no item, initialize the slot with this item with ammount of one and decrease the ammount from the drag container with 1
                 if (_item == null)
                 {
-                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 1);
-                    GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 1);
+                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
                 }
 
                 //IF the item in the slot is equal then just increase its ammount if possible and decrease the ammount in the drag container
-                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
                 {
-                    if (_ammount < Constants.MAX_STACK_AMMOUNT)
+                    if (_ammount < GlobalVariables.MAX_STACK_AMMOUNT)
                     {
                         _ammount++;
-                        GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+                        GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
                     }
                 }
             }
@@ -222,12 +222,12 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                 //IF the item is null first initialize it for the item in the container and then execute the mouse wheel control coroutine
                 if (_item == null)
                 {
-                    InitItem(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 0);
+                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 0);
                     StartCoroutine(MouseWheelControl());
                 }
 
                 //IF the item is equal to the drag container ammount then execute the mouse wheel control coroutine
-                else if (_item.Equals(GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.item)) {
+                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item)) {
                     StartCoroutine(MouseWheelControl());
                 }
             }
@@ -243,7 +243,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                 || Input.GetMouseButton(0) 
                 || Input.GetMouseButton(1) 
                 || _item == null 
-                || GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED == null 
+                || GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED == null 
                 || _ammount == 0)
             {
                 break;
@@ -254,15 +254,15 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
             //Get the mouse wheel value then increase/decrease currentAmmount and decrease/increase the ammount of the item in the container based on the value of mouseWheelValue
             float mouseWheelValue = Input.GetAxis("Mouse ScrollWheel");
-            if (mouseWheelValue > 0 && _ammount > 0 && GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount < 99)
+            if (mouseWheelValue > 0 && _ammount > 0 && GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount < 99)
             {
                 _ammount--;
-                GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount++;
-            } else if(mouseWheelValue < 0 && _ammount < 99 && GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount > 0)
+                GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount++;
+            } else if(mouseWheelValue < 0 && _ammount < 99 && GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount > 0)
             {
 
                 _ammount++;
-                GlobalNonConstantVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+                GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
             }
             yield return null;
         }

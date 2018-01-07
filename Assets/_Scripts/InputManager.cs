@@ -1,17 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour {
 
     private UIController _uiController;
-
     private PlayerController _player;
+    private KeyBindings _keyBindings;
 
     // Use this for initialization
     void Start() {
         _uiController = GetComponent<UIController>();
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        _keyBindings = GameObject.FindGameObjectWithTag("GlobalGameSettings").GetComponent<KeyBindings>();
     }
 
     // Update is called once per frame
@@ -37,7 +39,7 @@ public class InputManager : MonoBehaviour {
     {
         if (!_uiController.InventoryState())
         {
-            if (Input.GetButton("Inventory"))
+            if (Input.GetKeyDown(_keyBindings.GetKeyCodeFromName("OpenInv")))
             {
                 _uiController.ShowInventory();
                 _player.DisableControls();

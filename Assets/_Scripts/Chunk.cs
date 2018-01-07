@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour {
-    //REFACTOR
+    //The material of the terrain containing the textures of the tiles
     [SerializeField]
-    private Material _uvTexture;
+    private Material _terrainMaterial;
+    //The X by X dimention of the sprite sheet used for finding the right tile texture
     [SerializeField]
     private int _spriteSheetSize = 2;
     private ChunksController _chunksController;
@@ -16,7 +17,7 @@ public class Chunk : MonoBehaviour {
     private int _seed;
 
     //The layer maps of the chunk
-    int[,] _texturesMap = new int[64, 64];
+    int[,] _texturesMap = new int[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
     int[,] _biomesMap;
     int[,] _waterMap;
     int[,] _ironOreMap;
@@ -97,19 +98,19 @@ public class Chunk : MonoBehaviour {
 
         int blockCount = 0;
  
-        for (int x = 0; x < Constants.TILE_PER_CHUNK_AXIS; x++)
+        for (int x = 0; x < GlobalVariables.TILE_PER_CHUNK_AXIS; x++)
         {
-            for (int y = 0; y < Constants.TILE_PER_CHUNK_AXIS; y++)
+            for (int y = 0; y < GlobalVariables.TILE_PER_CHUNK_AXIS; y++)
             {
                 int id = _texturesMap[x, y];
 
                 //Create the verticies
-                float xCoord = (x) * Constants.TILE_SIZE;
-                float yCoord = (y) * Constants.TILE_SIZE;
+                float xCoord = (x) * GlobalVariables.TILE_SIZE;
+                float yCoord = (y) * GlobalVariables.TILE_SIZE;
 
-                verticies.Add(new Vector3(xCoord, yCoord + Constants.TILE_SIZE, 0));
-                verticies.Add(new Vector3(xCoord + Constants.TILE_SIZE, yCoord + Constants.TILE_SIZE, 0));
-                verticies.Add(new Vector3(xCoord + Constants.TILE_SIZE, yCoord, 0));
+                verticies.Add(new Vector3(xCoord, yCoord + GlobalVariables.TILE_SIZE, 0));
+                verticies.Add(new Vector3(xCoord + GlobalVariables.TILE_SIZE, yCoord + GlobalVariables.TILE_SIZE, 0));
+                verticies.Add(new Vector3(xCoord + GlobalVariables.TILE_SIZE, yCoord, 0));
                 verticies.Add(new Vector3(xCoord, yCoord, 0));
 
                 //Make a guideline for the building on the triangles
@@ -149,7 +150,7 @@ public class Chunk : MonoBehaviour {
         GetComponent<MeshCollider>().sharedMesh = _mesh;
         
         //Initialize tiles texures
-        GetComponent<Renderer>().material = _uvTexture;
+        GetComponent<Renderer>().material = _terrainMaterial;
     }
 
     public Vector2 GetCoordinates()

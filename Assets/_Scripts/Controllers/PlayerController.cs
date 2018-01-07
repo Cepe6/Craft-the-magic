@@ -6,11 +6,13 @@ public class PlayerController : MonoBehaviour {
     //Player movement variables
     [SerializeField]
     private float _movementSpeed = 5f;
-    [SerializeField]
+
     private ChunksController _chunksController;
 
     private Rigidbody _rigidbody;
     private Quaternion _lastRotation = new Quaternion(0f, 0f, 0f, 0f);
+
+    private List<GameObject> _currentCollidingDrops = new List<GameObject>();
 
     private bool _controlsEnabled = true;
 
@@ -18,6 +20,15 @@ public class PlayerController : MonoBehaviour {
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
+    }
+
+    private void Update()
+    {
+        if(Input.GetKey(KeyCode.F))
+        {
+            PickDrops();
+        }
     }
 
     // Update is called once per frame
@@ -54,6 +65,29 @@ public class PlayerController : MonoBehaviour {
     public void DisableControls()
     {
         _controlsEnabled = false;
+    }
+
+    public void AddDrop(GameObject drop)
+    {
+        _currentCollidingDrops.Add(drop);
+    }
+
+    public void RemoveDrop(GameObject drop)
+    {
+        _currentCollidingDrops.Remove(drop);
+    }
+
+    private void PickDrops()
+    {
+        foreach(GameObject drop in _currentCollidingDrops)
+        {
+            drop.GetComponent<Drop> ().AddToInventory();
+        }
+    }
+
+    public List<GameObject> GetCollidingDrops()
+    {
+        return _currentCollidingDrops;
     }
 }
 

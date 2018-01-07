@@ -46,7 +46,7 @@ public class InventoryController : MonoBehaviour {
         int ammountLeft = ammount;
 
         //Iterate once and add to the slots that already have this item in them
-        for (int i = 0; i < _slotsCount - 2; i++)
+        for (int i = 0; i < _slotsCount; i++)
         {
             if(_slots[i].item != null && _slots[i].item.Equals(item))
             {
@@ -57,7 +57,7 @@ public class InventoryController : MonoBehaviour {
         }
 
         //Iterate once more and add the remaining to the slots that do not have item in them
-        for(int i = 0; i < _slotsCount - 2; i++)
+        for(int i = 0; i < _slotsCount; i++)
         {
             if(_slots[i].item == null)
             {
@@ -75,7 +75,7 @@ public class InventoryController : MonoBehaviour {
         //FIRST fill any incomplete stacks of items
         for (int i = 0; i < _slotsCount - 1; i++)
         {
-            if (_slots[i].item != null && _slots[i].currentAmmount < Constants.MAX_STACK_AMMOUNT)
+            if (_slots[i].item != null && _slots[i].currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
                 for (int j = i + 1; j < _slotsCount; j++)
                 {
@@ -84,7 +84,7 @@ public class InventoryController : MonoBehaviour {
                         _slots[j].currentAmmount = _slots[i].AddToAmmountAndReturnRemaining(_slots[j].currentAmmount);
                     }
 
-                    if (_slots[j].currentAmmount == Constants.MAX_STACK_AMMOUNT) { break; }
+                    if (_slots[j].currentAmmount == GlobalVariables.MAX_STACK_AMMOUNT) { break; }
                 }
             }
         }
