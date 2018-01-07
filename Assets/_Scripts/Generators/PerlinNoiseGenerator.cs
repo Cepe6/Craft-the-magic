@@ -30,14 +30,14 @@ public static class PerlinNoiseGenerator {
     public static int[,] GenerateWaterMap(Vector2 chunkCoordinates)
     {
         chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
-        int[,] map = new int[66, 66];
+        int[,] map = new int[64, 64];
         float offset = GlobalVariables.WATER_OFFSET;
 
-        for (int x = 0; x < 66; x++)
+        for (int x = 0; x < 64; x++)
         {
-            for (int y = 0; y < 66; y++)
+            for (int y = 0; y < 64; y++)
             {
-                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkCoordinates.x - 1), offset + (y + chunkCoordinates.y - 1), 150f - 25f * WorldSettings.WATER_FREQUENCY, 6);
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkCoordinates.x), offset + (y + chunkCoordinates.y), 150f - 25f * WorldSettings.WATER_FREQUENCY, 6);
 
                 map[x, y] = 0;
                 if (perlinValue < .5f + .05f * WorldSettings.WATER_SIZE)
@@ -56,10 +56,27 @@ public static class PerlinNoiseGenerator {
         return map;        
     }
 
-    public static int[,] GenerateIronOreMap(Vector2 chunkCoordinates)
+    public static bool[,] GenerateIronOreMap(Vector2 chunkCoordinates)
     {
         chunkCoordinates *= GlobalVariables.TILE_PER_CHUNK_AXIS;
-        return null;
+        bool[,] map = new bool[64, 64];
+        float offset = GlobalVariables.RESOURCES_OFFSET;
+
+        for (int x = 0; x < 64; x++)
+        {
+            for (int y = 0; y < 64; y++)
+            {
+                float perlinValue = GetPerlinNoiseValueAt(offset + (x + chunkCoordinates.x), offset + (y + chunkCoordinates.y), 150f - 25f * WorldSettings.IRON_ORE_FREQUENCY, 6);
+
+                map[x, y] = false;
+                if (perlinValue < .5f + .05f * WorldSettings.IRON_ORE_SIZE)
+                {
+                    map[x, y] = true;
+                }
+            }
+        }
+
+        return map;
     }
 
     public static int[,] GenerateCopperOreMap(Vector2 chunkCoordinates)

@@ -9,6 +9,9 @@ public class Chunk : MonoBehaviour {
     //The X by X dimention of the sprite sheet used for finding the right tile texture
     [SerializeField]
     private int _spriteSheetSize = 2;
+    //Iron ore prefabs with different models
+    [SerializeField]
+    private List<GameObject> _ironOrePrefabs;
     private ChunksController _chunksController;
 
     private bool _visited = false;
@@ -20,7 +23,7 @@ public class Chunk : MonoBehaviour {
     int[,] _texturesMap = new int[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
     int[,] _biomesMap;
     int[,] _waterMap;
-    int[,] _ironOreMap;
+    bool[,] _ironOreMap;
     int[,] _copperOreMap;
     int[,] _coalMap;
     
@@ -50,6 +53,7 @@ public class Chunk : MonoBehaviour {
     {
         InitializeMaps();
 
+        GenerateOres();
         InitializeTextureMap();
         GenerateTextureTiles();
     }
@@ -61,6 +65,26 @@ public class Chunk : MonoBehaviour {
         _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates);
         _copperOreMap = PerlinNoiseGenerator.GenerateCopperOreMap(_chunkCoordinates);
         _coalMap = PerlinNoiseGenerator.GenerateCoalMap(_chunkCoordinates); 
+    }
+
+    private void GenerateOres()
+    {
+        for(int x = 0; x < 64; x++)
+        {
+            for(int y = 0; y < 64; y++)
+            {
+                if(_ironOreMap[x, y])
+                {
+                    float xCoord = transform.position.x + (x * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
+                    float yCoord = transform.position.z + (y * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
+
+                    int modelIndex = (int)Random.Range(0, _ironOrePrefabs.Count);
+                    int modelRotation = 90 * (int)Random.Range(-4, 4);
+
+                    Instantiate(_ironOrePrefabs[modelIndex], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
+                }
+            }
+        }
     }
 
     private void InitializeTextureMap()
@@ -78,9 +102,9 @@ public class Chunk : MonoBehaviour {
                //  } else if(copperMap[x, y] != 0) //Else if there is copper on this tile
                //  {
                //      texturesMap[x, y] = 7;
-               // } else if(ironMap[x, y] != 0) //Else if there is iron on this tile
-               // {
-               //     texturesMap[x, y] = 3;
+                } else if(_ironOreMap[x, y]) //Else if there is iron on this tile
+                {
+                    _texturesMap[x, y] = 3;
                 } else //Else get the biome map tile
                 {
                     _texturesMap[x, y] = _biomesMap[x, y];
