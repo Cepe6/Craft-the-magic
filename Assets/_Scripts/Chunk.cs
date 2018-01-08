@@ -81,7 +81,8 @@ public class Chunk : MonoBehaviour {
                     int modelIndex = (int)Random.Range(0, _ironOrePrefabs.Count);
                     int modelRotation = 90 * (int)Random.Range(-4, 4);
 
-                    Instantiate(_ironOrePrefabs[modelIndex], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
+                    GameObject instance = Instantiate(_ironOrePrefabs[modelIndex], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
+                    instance.transform.SetParent(transform.Find("Resources"));
                 }
             }
         }

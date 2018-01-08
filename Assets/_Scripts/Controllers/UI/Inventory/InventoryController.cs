@@ -41,6 +41,15 @@ public class InventoryController : MonoBehaviour {
         return _slots;
     }
 
+    public void AddOrDrop(Item item, int ammount)
+    {
+        int remainingAmmount = AddItemAndReturnRemainingAmmount(item, ammount);
+        if(remainingAmmount > 0)
+        {
+            GameObject.FindGameObjectWithTag("World Manager").GetComponent<WorldController>().SpawnDrop(item, remainingAmmount);
+        }
+    }
+
     public int AddItemAndReturnRemainingAmmount(Item item, int ammount)
     {
         int ammountLeft = ammount;

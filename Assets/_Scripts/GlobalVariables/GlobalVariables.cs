@@ -13,4 +13,10 @@ public static class GlobalVariables {
 
     //Drops
     public static int DROP_SIZE = 6;
+
+    //Resource gathering
+    public static float IRON_PICK_MINE_TIME = 1f;
+
+    //Player interact distance
+    public static float INTERACT_DISTANCE = 30f;
 }

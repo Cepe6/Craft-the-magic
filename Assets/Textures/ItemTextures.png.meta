@@ -1,10 +1,11 @@
 fileFormatVersion: 2
 guid: 5593f95f66bd52741b8286b447224051
-timeCreated: 1515256390
+timeCreated: 1515354945
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: 00_Pickaxe
+    21300002: 01_Iron_Ore
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -79,7 +80,20 @@ TextureImporter:
         width: 64
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: 01_Iron_Ore
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0

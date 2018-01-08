@@ -89,5 +89,10 @@ public class PlayerController : MonoBehaviour {
     {
         return _currentCollidingDrops;
     }
+
+    public bool GetControlsEnabled()
+    {
+        return _controlsEnabled;
+    }
 }
 
