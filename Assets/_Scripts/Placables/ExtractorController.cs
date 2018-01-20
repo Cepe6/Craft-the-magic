@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ExtractorController : MonoBehaviour {
@@ -124,9 +125,9 @@ public class ExtractorController : MonoBehaviour {
 
     private void OnMouseOver()
     {
-        if (isActiveAndEnabled)
+        if (isActiveAndEnabled && !EventSystem.current.IsPointerOverGameObject())
         {
-            if (Input.GetMouseButton(1) && !_open)
+            if (Input.GetMouseButton(1) && !_open && GetComponent<Interactable> ().IsInteractable())
             {
                 _currentInstance.SetActive(true);
                 _uiController.ShowInventory();
@@ -136,4 +137,9 @@ public class ExtractorController : MonoBehaviour {
             }
         }
     }
+
+    private void OnDestroy()
+    {
+        Destroy(_currentInstance);
+    }   
 }

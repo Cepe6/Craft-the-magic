@@ -31,7 +31,7 @@ public class ResourceController : MonoBehaviour {
 
     private void InitializeAmmount()
     {
-        _ammount = 1;// (Random.Range(-50, 50) + WorldSettings.DEFAULT_RESOURCE_CAPACITY) + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
+        _ammount = (Random.Range(-50, 50) + WorldSettings.DEFAULT_RESOURCE_CAPACITY) + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
     }
 	
 	// Update is called once per frame
@@ -75,8 +75,7 @@ public class ResourceController : MonoBehaviour {
 
     private void OnMouseOver()
     {
-        bool inRange = Vector3.Distance(transform.position, _player.transform.position) <= GlobalVariables.INTERACT_DISTANCE;
-        if (Input.GetMouseButton(1) && inRange)
+        if (Input.GetMouseButton(1) && GetComponent<Interactable>().IsInteractable())
         {
             Mine();
 

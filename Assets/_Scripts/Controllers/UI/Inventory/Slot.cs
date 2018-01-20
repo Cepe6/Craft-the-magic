@@ -40,6 +40,10 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             InitItem(_item, _ammount);
         }
 
+    }
+
+    private void Start()
+    {
         _dragContainer = SerializedGlobalVariables.instance.dragContainerPrefab;
     }
 
