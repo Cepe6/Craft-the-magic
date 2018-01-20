@@ -9,7 +9,7 @@ public class DragContainer : MonoBehaviour {
     public Item item { get; set; }
     public int currentAmmount { get; set; }
     
-    private InventoryController _inventory;
+    private PlayerInventoryController _inventory;
     private WorldController _worldController;
 
     [SerializeField]
@@ -19,7 +19,7 @@ public class DragContainer : MonoBehaviour {
 
     private void Awake()
     {
-        _inventory = GameObject.FindGameObjectWithTag("Inventory").GetComponent<InventoryController>();
+        _inventory = GameObject.FindGameObjectWithTag("PlayerInventory").GetComponent<PlayerInventoryController>();
         _worldController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<WorldController>();
     }
 

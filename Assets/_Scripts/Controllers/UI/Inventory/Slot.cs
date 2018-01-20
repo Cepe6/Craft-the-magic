@@ -13,20 +13,15 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     [SerializeField]
     private int _ammount;
     
-    [SerializeField]
     private Image _itemIcon;
-    [SerializeField]
     private Text _itemAmmount;
-
-    [SerializeField]
-    private GameObject _dragContainer ;
+    
+    private GameObject _dragContainer;
     [SerializeField]
     private bool _filtered ;
     [SerializeField]
     private List<Item> _allowedItems;
-
-    [SerializeField]
-    private Color _highlightOnHover ;
+    
     private Color _originalColor;
 
     [SerializeField]
@@ -36,11 +31,16 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     private void Awake()
     {
+        _itemIcon = transform.Find("Image").GetComponent<Image> ();
+        _itemAmmount = transform.Find("Ammount").GetComponent<Text>();
+
         _originalColor = GetComponent<Image>().color;
         if(_item != null)
         {
             InitItem(_item, _ammount);
         }
+
+        _dragContainer = SerializedGlobalVariables.instance.dragContainerPrefab;
     }
 
     private void Update()
@@ -129,13 +129,13 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                     //Else we know that we need to transfer item from the currently open machine inventory to the player inventory
                     else
                     {
-                        GameObject _inventory = GameObject.FindGameObjectWithTag("Inventory");
+                        GameObject _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
                         if(_inventory == null)
                         {
                             return;
                         }
 
-                        InventoryController _inventoryController = _inventory.GetComponent<InventoryController>();
+                        PlayerInventoryController _inventoryController = _inventory.GetComponent<PlayerInventoryController>();
 
                         _ammount = _inventoryController.AddItemAndReturnRemainingAmmount(_item, _ammount);
                     }
@@ -272,7 +272,6 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         yield return null;
     }
 
-
     public bool IsFiltered()
     {
         return _filtered;
@@ -280,7 +279,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        GetComponent<Image>().color = _highlightOnHover;
+        GetComponent<Image>().color = SerializedGlobalVariables.instance.slotOnHoverColor;
         _hovered = true;
     }
 
@@ -288,14 +287,6 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     {
         GetComponent<Image>().color = _originalColor;
         _hovered = false;
-    }
-
-    private void OnDisable()
-    {
-        if(_hovered)
-        {
-            GetComponent<Image>().color = _originalColor;
-        }
     }
 
     public void CopySlotProperties(Slot targetSlot)
@@ -327,4 +318,4 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             _ammount = value;
         }
     }
-}
+} 

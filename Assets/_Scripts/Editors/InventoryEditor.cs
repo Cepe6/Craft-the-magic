@@ -2,38 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
-[CustomEditor(typeof(InventoryController))]
+[CustomEditor(typeof(InventoryAbstract), true)]
 public class InventoryEditor : Editor {
-    InventoryController _script;
-    private bool[] foldouts = new bool[InventoryController.SlotsCount()];
+    InventoryAbstract _script;
+    private List<bool> foldouts = new List<bool>();
     SerializedProperty slotsProp;
-    static SerializedObject[] slotsSerialized = new SerializedObject[InventoryController.SlotsCount()];
-    
+    private List<SerializedObject> slotsSerialized = new List<SerializedObject> ();
+
     private void Awake()
     {
-        _script = (InventoryController)target;
+        _script = (InventoryAbstract)target;
         slotsProp = serializedObject.FindProperty("_slots");
 
         serializedObject.Update();
-        for (int i = 0; i < InventoryController.SlotsCount(); i++)
+        for (int i = 0; i < _script.SlotsCount(); i++)
         {
-            if (slotsSerialized[i] != null)
+            if (slotsSerialized.Count == i)
             {
-                continue;
+                foldouts.Add(false);
+                try
+                {
+                    slotsProp.InsertArrayElementAtIndex(i);
+                    slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = _script.transform.GetComponentsInChildren<Slot>()[i];
+                    slotsSerialized.Add(new SerializedObject(slotsProp.GetArrayElementAtIndex(i).objectReferenceValue));
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    throw new Exception("Not enough slots in current parent. Present: " + i + ", Needed: " + _script.SlotsCount());
+                }
             }
-
-            slotsProp.InsertArrayElementAtIndex(i);
-            slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = _script.transform.Find("ItemSlots").GetChild(i).GetComponent<Slot>();
-            slotsSerialized[i] = new SerializedObject(slotsProp.GetArrayElementAtIndex(i).objectReferenceValue);
+            serializedObject.ApplyModifiedProperties();
         }
-        serializedObject.ApplyModifiedProperties();
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        for (int i = 0; i < InventoryController.SlotsCount(); i++)
+        for (int i = 0; i < _script.SlotsCount(); i++)
         {
             slotsSerialized[i].Update();
             string labelText = slotsSerialized[i].FindProperty("_item").objectReferenceValue != null ?

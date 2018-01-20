@@ -10,22 +10,20 @@ public class UIController : MonoBehaviour {
 
     [SerializeField]
     private HotBarController _hotBarController;
-    [SerializeField]
-    private InventoryController _inventoryController;
     
     public void ShowInventory()
     {
-        _inventoryController.Toggle(true);
+        _inventoryPanel.GetComponent<Canvas> ().enabled = true;
     }
 
     public void CloseInventory()
     {
-        _inventoryController.Toggle(false);
+        _inventoryPanel.GetComponent<Canvas> ().enabled = false;
     }
 
     public bool InventoryState()
     {
-        return _inventoryController.IsVisible();
+        return _inventoryPanel.GetComponent<Canvas>().isActiveAndEnabled;
     }
 
     public void ChangeHotbarPosition(int index)

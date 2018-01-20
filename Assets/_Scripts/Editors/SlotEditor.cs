@@ -12,10 +12,6 @@ public class SlotEditor : Editor
     {
 
         serializedObject.Update();
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("_itemIcon"), true);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("_itemAmmount"), true);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("_dragContainer"), true);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("_highlightOnHover"), true);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("_inventorySlot"), true);
 
 

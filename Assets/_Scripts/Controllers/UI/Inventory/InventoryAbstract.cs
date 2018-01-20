@@ -1,39 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
+using System.Collections;
 
-[System.Serializable]
-public class InventoryController : MonoBehaviour {
-    private static int _slotsCount = 64;
+[ExecuteInEditMode]
+public abstract class InventoryAbstract : MonoBehaviour
+{
+    protected int _slotsCount;
     
     [SerializeField]
-    private Slot[] _slots;
-    private Slot _miningSlot;
-    private Slot _buidlingSlot;
+    protected Slot[] _slots;
 
     private void Awake()
     {
-        _miningSlot = transform.Find("WorkSlots").GetChild(0).GetComponent<Slot>();
-        _buidlingSlot = transform.Find("WorkSlots").GetChild(1).GetComponent<Slot>();
-    }
-
-    private void Update()
-    {
-        if(Input.GetKey(KeyCode.R))
-        {
-            SortInventory();
-        }
-    }
-
-    public void Toggle(bool visible)
-    {
-        GetComponent<Canvas>().enabled = visible;
-    }
-
-    public bool IsVisible()
-    {
-        return GetComponent<Canvas>().enabled;
+        _slots = new Slot[_slotsCount];
     }
 
     public Slot[] GetSlots()
@@ -41,13 +19,9 @@ public class InventoryController : MonoBehaviour {
         return _slots;
     }
 
-    public void AddOrDrop(Item item, int ammount)
+    public int SlotsCount()
     {
-        int remainingAmmount = AddItemAndReturnRemainingAmmount(item, ammount);
-        if(remainingAmmount > 0)
-        {
-            GameObject.FindGameObjectWithTag("World Manager").GetComponent<WorldController>().SpawnDrop(item, remainingAmmount);
-        }
+        return _slotsCount;
     }
 
     public int AddItemAndReturnRemainingAmmount(Item item, int ammount)
@@ -57,18 +31,18 @@ public class InventoryController : MonoBehaviour {
         //Iterate once and add to the slots that already have this item in them
         for (int i = 0; i < _slotsCount; i++)
         {
-            if(_slots[i].item != null && _slots[i].item.Equals(item))
+            if (_slots[i].item != null && _slots[i].item.Equals(item))
             {
                 ammountLeft = _slots[i].AddToAmmountAndReturnRemaining(ammountLeft);
             }
 
-            if(ammountLeft == 0) { return 0; }
+            if (ammountLeft == 0) { return 0; }
         }
 
         //Iterate once more and add the remaining to the slots that do not have item in them
-        for(int i = 0; i < _slotsCount; i++)
+        for (int i = 0; i < _slotsCount; i++)
         {
-            if(_slots[i].item == null)
+            if (_slots[i].item == null)
             {
                 _slots[i].InitItem(item, ammountLeft);
 
@@ -79,7 +53,7 @@ public class InventoryController : MonoBehaviour {
         return ammountLeft;
     }
 
-    private void SortInventory()
+    public void SortInventory()
     {
         //FIRST fill any incomplete stacks of items
         for (int i = 0; i < _slotsCount - 1; i++)
@@ -118,10 +92,4 @@ public class InventoryController : MonoBehaviour {
             }
         }
     }
-
-    public static int SlotsCount()
-    {
-        return _slotsCount;
-    }
-
 }

@@ -14,12 +14,12 @@ public class Drop : MonoBehaviour
     private int _spriteSheetSize;
 
     private PlayerController _playerController;
-    private InventoryController _inventoryController;
+    private PlayerInventoryController _inventoryController;
     
     void Awake()
     {
         _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        _inventoryController = GameObject.FindGameObjectWithTag("Inventory").GetComponent<InventoryController>();
+        _inventoryController = GameObject.FindGameObjectWithTag("PlayerInventory").GetComponent<PlayerInventoryController>();
 
     }
 

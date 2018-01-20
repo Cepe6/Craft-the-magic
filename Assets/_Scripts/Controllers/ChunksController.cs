@@ -78,6 +78,13 @@ public class ChunksController : MonoBehaviour {
         return 0f;
     }
 
+    public TileData GetTile(float x, float y)
+    {
+        Chunk containingChunk = GetChunkFromCoords(x, y).GetComponent<Chunk>();
+
+        return containingChunk.GetTile(Mathf.Abs((int)(x - containingChunk.GetCoordinates().x * _chunkSize) / GlobalVariables.TILE_SIZE), Mathf.Abs((int)(y - containingChunk.GetCoordinates().y * _chunkSize)) / GlobalVariables.TILE_SIZE);
+    }
+
     public GameObject GetChunkFromCoords(float x, float y)
     {
         Vector2 convertedCoords = new Vector2((int)(x / _chunkSize) - (x < 0 ? 1 : 0), (int)(y / _chunkSize) - (y < 0 ? 1 : 0));

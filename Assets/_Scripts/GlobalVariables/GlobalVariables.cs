@@ -10,13 +10,23 @@ public static class GlobalVariables {
     //Inventory
     public static int MAX_STACK_AMMOUNT = 99;
     public static DragContainer ITEM_CONTAINER_BEING_DRAGGED = null;
+    public static int PLAYER_INVENTORY_SIZE = 100;
+    public static int HOTBAR_SIZE = 10;
+    public static int STORAGE_SIZE_SMALL = 32;
+    public static int STORAGE_SIZE_MEDIUM = 64;
+    public static int STORAGE_SIZE_BIG = 128;
+
 
     //Drops
     public static int DROP_SIZE = 6;
 
     //Resource gathering
     public static float IRON_PICK_MINE_TIME = 1f;
+    public static float EXTRACTOR_MINE_TIME = 1f;
 
     //Player interact distance
     public static float INTERACT_DISTANCE = 30f;
+
+    //Fuel ammount
+    public static float COAL_FUEL_AMMOUNT = 4f;
 }

@@ -12,20 +12,17 @@ public class Chunk : MonoBehaviour {
     //Iron ore prefabs with different models
     [SerializeField]
     private List<GameObject> _ironOrePrefabs;
+    [SerializeField]
+    private List<GameObject> _coalPrefabs;
     private ChunksController _chunksController;
 
     private bool _visited = false;
-    
 
     private int _seed;
 
     //The layer maps of the chunk
-    int[,] _texturesMap = new int[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
-    int[,] _biomesMap;
-    int[,] _waterMap;
-    bool[,] _ironOreMap;
-    int[,] _copperOreMap;
-    int[,] _coalMap;
+    TileData[,] _tilesDataMap = new TileData[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
+    bool[,] _notWalkableMap = new bool[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
     
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
@@ -51,70 +48,66 @@ public class Chunk : MonoBehaviour {
 
     public void GenerateChunk()
     {
-        InitializeMaps();
-
-        GenerateOres();
-        InitializeTextureMap();
-        GenerateTextureTiles();
+        InitializeDataMap();
+        GenerateTexture();
     }
 
-    private void InitializeMaps()
+    private void InitializeDataMap()
     {
-        _biomesMap = PerlinNoiseGenerator.GenerateBiomesMap(_chunkCoordinates);
-        _waterMap = PerlinNoiseGenerator.GenerateWaterMap(_chunkCoordinates);
-        _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates);
-        _copperOreMap = PerlinNoiseGenerator.GenerateCopperOreMap(_chunkCoordinates);
-        _coalMap = PerlinNoiseGenerator.GenerateCoalMap(_chunkCoordinates); 
-    }
-
-    private void GenerateOres()
-    {
-        for(int x = 0; x < 64; x++)
-        {
-            for(int y = 0; y < 64; y++)
-            {
-                if(_ironOreMap[x, y])
-                {
-                    float xCoord = transform.position.x + (x * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
-                    float yCoord = transform.position.z + (y * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
-
-                    int modelIndex = (int)Random.Range(0, _ironOrePrefabs.Count);
-                    int modelRotation = 90 * (int)Random.Range(-4, 4);
-
-                    GameObject instance = Instantiate(_ironOrePrefabs[modelIndex], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
-                    instance.transform.SetParent(transform.Find("Resources"));
-                }
-            }
-        }
-    }
-
-    private void InitializeTextureMap()
-    {
+        TilesEnum[,] _biomesMap = PerlinNoiseGenerator.GenerateBiomesMap(_chunkCoordinates);
+        TilesEnum[,] _waterMap = PerlinNoiseGenerator.GenerateWaterMap(_chunkCoordinates);
+        bool[,] _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates);
+        bool[,] _coalMap = PerlinNoiseGenerator.GenerateCoalMap(_chunkCoordinates);
+      
         for (int x = 0; x < 64; x++)
         {
             for(int y = 0; y < 64; y++)
             {
-                if(_waterMap[x, y] != 0) //If there is water on this tile
+                if (_waterMap[x, y] != 0) //If there is water on this tile
                 {
-                    _texturesMap[x, y] = 2 + (_waterMap[x, y] - 1) * _spriteSheetSize; 
-               // } else if(coalMap[x, y] != 0) //Else if there is coal on this tile
-               // {
-               //     texturesMap[x, y] = 7;
-               //  } else if(copperMap[x, y] != 0) //Else if there is copper on this tile
-               //  {
-               //      texturesMap[x, y] = 7;
-                } else if(_ironOreMap[x, y]) //Else if there is iron on this tile
+                    _tilesDataMap[x, y] = new TileData(_waterMap[x, y]);
+                    _notWalkableMap[x, y] = true;
+                }
+                else if (_ironOreMap[x, y]) //Else if there is iron on this tile
                 {
-                    _texturesMap[x, y] = 3;
-                } else //Else get the biome map tile
+                    _tilesDataMap[x, y] = new TileData(TilesEnum.IRON_ORE, NewResource(TilesEnum.IRON_ORE, x, y));
+                }
+                else if (_coalMap[x, y])
                 {
-                    _texturesMap[x, y] = _biomesMap[x, y];
+                    _tilesDataMap[x, y] = new TileData(TilesEnum.COAL, NewResource(TilesEnum.COAL, x, y));
+                }
+                else //Else get the biome map tile
+                {
+                    _tilesDataMap[x, y] = new TileData(_biomesMap[x, y]);
                 }
             }
         }
     }
 
-    private void GenerateTextureTiles()
+    private GameObject NewResource(TilesEnum type, int x, int y)
+    {
+        float xCoord = transform.position.x + (x * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
+        float yCoord = transform.position.z + (y * GlobalVariables.TILE_SIZE + GlobalVariables.TILE_SIZE / 2);
+        int modelRotation = 90 * Random.Range(-4, 4);
+        GameObject instance = null;
+        switch(type)
+        {
+            case TilesEnum.IRON_ORE:
+                instance = Instantiate(_ironOrePrefabs[Random.Range(0, _ironOrePrefabs.Count)], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
+                break;
+            case TilesEnum.COAL:
+                instance = Instantiate(_coalPrefabs[Random.Range(0, _coalPrefabs.Count)], new Vector3(xCoord, -2f, yCoord), new Quaternion(0f, modelRotation, 0f, 0f));
+                break;
+        }
+
+        if (instance != null)
+        {
+            instance.transform.SetParent(transform.Find("Resources"));
+        }
+        return instance;
+    }
+
+    private void GenerateTexture()
     {
         
         List<Vector3> verticies = new List<Vector3>();
@@ -127,7 +120,7 @@ public class Chunk : MonoBehaviour {
         {
             for (int y = 0; y < GlobalVariables.TILE_PER_CHUNK_AXIS; y++)
             {
-                int id = _texturesMap[x, y];
+                int id = (int)_tilesDataMap[x, y].GetTileType();
 
                 //Create the verticies
                 float xCoord = (x) * GlobalVariables.TILE_SIZE;
@@ -185,12 +178,17 @@ public class Chunk : MonoBehaviour {
 
     public bool IsWalkable(int x, int y)
     {
-        if(_waterMap[x, y] != 0)
+        if(_notWalkableMap[x, y])
         {
             return false;
         }
 
         return true;
+    }
+
+    public TileData GetTile(int x, int y)
+    {
+        return _tilesDataMap[x, y];
     }
 
     private void OnCollisionEnter(Collision collision)

@@ -1,0 +1,14 @@
+Folder,Files,LOC,SLOC-P,SLOC-L,MVG,BLOC,C&SLOC,CLOC,CWORD,HCLOC,HCWORD
+Total,28,2048,1643,1013,152,338,3,67,800,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets,28,2048,1643,1013,152,338,3,67,800,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts,28,2048,1643,1013,152,338,3,67,800,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers,12,1152,914,539,95,192,0,46,627,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI,6,629,497,278,58,105,0,27,515,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Controllers\UI\Inventory,5,595,470,262,57,98,0,27,515,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Editors,3,131,112,75,5,19,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Enum,2,14,13,2,0,1,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Enums,2,24,20,8,0,4,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Generators,1,107,88,53,16,19,0,0,0,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\GlobalVariables,2,50,33,31,0,12,0,5,9,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\Placables,2,122,103,69,11,17,0,2,42,0,0
+C:\Users\Cepe6\Documents\Craft The Magic\Assets\_Scripts\ScriptableObjects,1,30,26,14,0,4,0,0,0,0,0

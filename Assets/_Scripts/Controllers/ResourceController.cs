@@ -7,29 +7,21 @@ public class ResourceController : MonoBehaviour {
     [SerializeField]
     private Item _item;
     private int _ammount;
-
-    [SerializeField]
-    private Material _onHoverMaterial;
+    
     [SerializeField]
     private Slider _actionSlider;
-    [SerializeField]
-    private Color _inRangeHighLight;
-    [SerializeField]
-    private Color _outOfRangeHightLight;
 
-    private MeshRenderer _meshRenderer;
 
     PlayerController _player;
-    InventoryController _inventory;
+    PlayerInventoryController _inventory;
     private float _currentMineSessionTime = 0f;
     private bool _currentlyMining = false;
 
     private void Awake()
     {
-        _meshRenderer = GetComponent<MeshRenderer>();
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        _inventory = GameObject.FindGameObjectWithTag("Inventory").GetComponent<InventoryController>();
-        _actionSlider = GameObject.FindGameObjectWithTag("ActionSlider").GetComponent<Slider> (); 
+        _inventory = GameObject.FindGameObjectWithTag("PlayerInventory").GetComponent<PlayerInventoryController>();
+        _actionSlider = GameObject.FindGameObjectWithTag("ActionSlider").GetComponent<Slider> ();
     }
 
     // Use this for initialization
@@ -39,7 +31,7 @@ public class ResourceController : MonoBehaviour {
 
     private void InitializeAmmount()
     {
-        _ammount = (Random.Range(-50, 50) + WorldSettings.DEFAULT_RESOURCE_CAPACITY) + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
+        _ammount = 1;// (Random.Range(-50, 50) + WorldSettings.DEFAULT_RESOURCE_CAPACITY) + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
     }
 	
 	// Update is called once per frame
@@ -70,9 +62,6 @@ public class ResourceController : MonoBehaviour {
 
     private void OnMouseExit()
     {
-        List<Material> materials = new List<Material>();
-        materials.Add(_meshRenderer.materials[0]);
-        GetComponent<MeshRenderer>().materials = materials.ToArray();
         if(!_player.GetControlsEnabled())
         {
             _player.EnableControls();
@@ -87,19 +76,6 @@ public class ResourceController : MonoBehaviour {
     private void OnMouseOver()
     {
         bool inRange = Vector3.Distance(transform.position, _player.transform.position) <= GlobalVariables.INTERACT_DISTANCE;
-
-        if (!inRange)
-        {
-            _onHoverMaterial.color = _outOfRangeHightLight;
-        } else
-        {
-            _onHoverMaterial.color = _inRangeHighLight;
-        }
-        List<Material> materials = new List<Material>();
-        materials.Add(_meshRenderer.materials[0]);
-        materials.Add(_onHoverMaterial);
-        GetComponent<MeshRenderer>().materials = materials.ToArray();
-
         if (Input.GetMouseButton(1) && inRange)
         {
             Mine();
@@ -146,7 +122,6 @@ public class ResourceController : MonoBehaviour {
                 _actionSlider.value = Mathf.Lerp(0f, 1f, _currentMineSessionTime / GlobalVariables.IRON_PICK_MINE_TIME);
 
                 _currentMineSessionTime += Time.deltaTime;
-                Debug.Log(_currentMineSessionTime);
             }
         }
     }
