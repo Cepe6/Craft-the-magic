@@ -10,6 +10,8 @@ public class Item : ScriptableObject
     private Sprite _itemIcon;
     [SerializeField]
     private bool _isStackable;
+    [SerializeField]
+    private Item _interactionResult;
 
 
     public ItemsEnum type {
@@ -26,4 +28,9 @@ public class Item : ScriptableObject
         get { return _isStackable; }
         set { _isStackable = value; }
     }    
+    public Item interactionResult
+    {
+        get { return _interactionResult; }
+        set { _interactionResult = value; }
+    }
 }

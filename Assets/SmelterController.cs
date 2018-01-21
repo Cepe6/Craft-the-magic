@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class ExtractorController : MonoBehaviour {
+public class SmelterController : MonoBehaviour {
     [SerializeField]
     private GameObject _UIPanel;
 
@@ -12,35 +12,31 @@ public class ExtractorController : MonoBehaviour {
 
     private GameObject _inventory;
     private UIController _uiController;
-    
+
     private bool _open = false;
 
-    private TileData[,] _tilesUnder;
-    private Vector2 _size;
-
     private Slot _fuelSlot;
+    private Slot _inputSlot;
     private Slot _outputSlot;
     private Slider _outputProgressSlider;
     private Slider _fuelAmmountLeft;
     
     private bool _fuelBurning;
-    private float _currentMineTime = 0f;
+    private float _currentSmeltTime = 0f;
     private float _currentFuelLeft;
-    private TileData _currentMined;
 
     private void OnEnable()
     {
         _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
         _uiController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<UIController>();
-        _size = GetComponent<Placable>().GetSize();
-        _tilesUnder = GetComponent<Placable>().GetTilesUnder();
 
         _currentInstance = Instantiate(_UIPanel, _inventory.transform);
         _fuelSlot = _currentInstance.transform.Find("FuelSlot").GetComponent<Slot>();
+        _inputSlot = _currentInstance.transform.Find("InputSlot").GetComponent<Slot>();
         _outputSlot = _currentInstance.transform.Find("OutputSlot").GetComponent<Slot>();
         _outputProgressSlider = _currentInstance.transform.Find("OutputProgressSlider").GetComponent<Slider>();
         _fuelAmmountLeft = _currentInstance.transform.Find("FuelAmmountLeft").GetComponent<Slider>();
-        _currentInstance.SetActive(false);        
+        _currentInstance.SetActive(false);
     }
 
     private void Update()
@@ -54,13 +50,9 @@ public class ExtractorController : MonoBehaviour {
             }
         }
 
-
-        if(_currentMineTime < GlobalVariables.EXTRACTOR_MINE_TIME)
+        if (_currentSmeltTime < GlobalVariables.SMELTER_SMELT_TIME)
         {
-            if (_currentMined == null || _currentMined.GetObjectAbove() == null)
-                _currentMined = RandomTile();
-
-            if (_currentMined != null && _currentMined.GetObjectAbove() != null)
+            if (_inputSlot.item != null)
             {
                 if (!_fuelBurning)
                 {
@@ -72,28 +64,34 @@ public class ExtractorController : MonoBehaviour {
 
                 if (_fuelBurning)
                 {
-                    _currentMineTime += Time.deltaTime;
+                    _currentSmeltTime += Time.deltaTime;
                 }
+            } else
+            {
+                _currentSmeltTime = 0f;
             }
-        } else if(_currentMineTime >= GlobalVariables.EXTRACTOR_MINE_TIME && _currentMined != null && _currentMined.GetObjectAbove() != null) 
+        }
+        else if (_currentSmeltTime >= GlobalVariables.SMELTER_SMELT_TIME)
         {
             if (_outputSlot.currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
-                _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
-                if(_outputSlot.item == null)
+                _inputSlot.currentAmmount--;
+                if (_outputSlot.item == null)
                 {
-                    _outputSlot.InitItem(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1);
-                } else
+                    _outputSlot.InitItem(_inputSlot.item.interactionResult, 1);
+                }
+                else if(_outputSlot.item == _inputSlot.item.interactionResult)
                 {
                     _outputSlot.currentAmmount++;
                 }
-                _currentMineTime = 0;
+                _currentSmeltTime = 0;
             }
         }
 
         _fuelAmmountLeft.value = Mathf.Lerp(0f, 1f, _currentFuelLeft / GlobalVariables.COAL_FUEL_AMMOUNT);
-        _outputProgressSlider.value = Mathf.Lerp(0f, 1f, _currentMineTime / GlobalVariables.EXTRACTOR_MINE_TIME);
+        _outputProgressSlider.value = Mathf.Lerp(0f, 1f, _currentSmeltTime / GlobalVariables.SMELTER_SMELT_TIME);
     }
+
 
     private IEnumerator BurnFuel()
     {
@@ -101,7 +99,7 @@ public class ExtractorController : MonoBehaviour {
         _fuelSlot.currentAmmount--;
         _currentFuelLeft = GlobalVariables.COAL_FUEL_AMMOUNT;
         while (_currentFuelLeft > 0)
-        { 
+        {
             _currentFuelLeft -= Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
@@ -109,24 +107,11 @@ public class ExtractorController : MonoBehaviour {
         yield return null;
     }
 
-    private TileData RandomTile()
-    {
-        int x = (int)Random.Range(0, _size.x);
-        int y = (int)Random.Range(0, _size.y);
-        while(_tilesUnder[x, y].GetTileType() != TilesEnum.IRON_ORE && _tilesUnder[x, y].GetTileType() != TilesEnum.COAL && _tilesUnder[x, y].GetObjectAbove() == null)
-        {
-            x = (int)Random.Range(0, _size.x);
-            y = (int)Random.Range(0, _size.y);
-        }
-
-        return _tilesUnder[x, y];
-    }
-
     private void OnMouseOver()
     {
         if (isActiveAndEnabled && !EventSystem.current.IsPointerOverGameObject())
         {
-            if (Input.GetMouseButton(1) && !_open && GetComponent<Interactable> ().IsInteractable())
+            if (Input.GetMouseButton(1) && !_open && GetComponent<Interactable>().IsInteractable())
             {
                 _currentInstance.SetActive(true);
                 _uiController.ShowInventory();
@@ -139,5 +124,5 @@ public class ExtractorController : MonoBehaviour {
     private void OnDestroy()
     {
         Destroy(_currentInstance);
-    }   
+    }
 }
