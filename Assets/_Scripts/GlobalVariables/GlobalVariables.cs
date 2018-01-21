@@ -13,10 +13,7 @@ public static class GlobalVariables {
     public const int PLAYER_INVENTORY_SIZE = 100;
     public const int HOTBAR_SIZE = 10;
     public const int STORAGE_SIZE_SMALL = 32;
-    public const int STORAGE_SIZE_MEDIUM = 64;
-    public const int STORAGE_SIZE_BIG = 128;
-
-
+    
     //Drops
     public const int DROP_SIZE = 6;
 
