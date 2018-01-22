@@ -12,7 +12,7 @@ public static class GlobalVariables {
     public static DragContainer ITEM_CONTAINER_BEING_DRAGGED = null;
     public const int PLAYER_INVENTORY_SIZE = 100;
     public const int HOTBAR_SIZE = 10;
-    public const int STORAGE_SIZE_SMALL = 32;
+    public const int STORAGE_CONTAINER_SIZE = 100;
     
     //Drops
     public const int DROP_SIZE = 6;
