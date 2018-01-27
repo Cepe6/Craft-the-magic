@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-[CustomEditor(typeof(InventoryAbstract), true)]
+[CustomEditor(typeof(StaticInventory), true)]
 public class InventoryEditor : Editor {
     InventoryAbstract _script;
     private List<bool> foldouts = new List<bool>();

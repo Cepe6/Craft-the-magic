@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class PlayerInventoryController : InventoryAbstract {
+public class PlayerInventoryController : StaticInventory {
     private void Awake()
     {
         _slotsCount = GlobalVariables.PLAYER_INVENTORY_SIZE;

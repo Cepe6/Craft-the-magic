@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class SmelterController : MonoBehaviour {
+public class SmelterController : InventoryAbstract
+{
     [SerializeField]
     private GameObject _UIPanel;
 
@@ -37,6 +38,13 @@ public class SmelterController : MonoBehaviour {
         _outputProgressSlider = _currentInstance.transform.Find("OutputProgressSlider").GetComponent<Slider>();
         _fuelAmmountLeft = _currentInstance.transform.Find("FuelAmmountLeft").GetComponent<Slider>();
         _currentInstance.SetActive(false);
+
+        _slots = new Slot[3];
+        _slotsCount = 3;
+
+        _slots[0] = _fuelSlot;
+        _slots[1] = _outputSlot;
+        _slots[2] = _inputSlot;
     }
 
     private void Update()

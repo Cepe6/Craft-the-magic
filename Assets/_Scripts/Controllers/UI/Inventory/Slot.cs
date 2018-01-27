@@ -20,7 +20,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     [SerializeField]
     private bool _filtered ;
     [SerializeField]
-    private List<Item> _allowedItems;
+    private List<ItemTypesEnum> _allowedTypes;
     
     private Color _originalColor;
 
@@ -68,8 +68,16 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         if(_ammount > GlobalVariables.MAX_STACK_AMMOUNT) { _ammount = GlobalVariables.MAX_STACK_AMMOUNT; }
     }
 
-    public void InitItem(Item newItem, int ammount)
+    public bool InitItem(Item newItem, int ammount)
     {
+        if (_filtered)
+        {
+            if (_allowedTypes.Where(type => newItem.type.Equals(type)).ToList().Count == 0)
+            {
+                return false;
+            }
+        }
+
         _item = newItem;
         if (item.isStackable)
         {
@@ -80,6 +88,8 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
          
         _itemIcon.sprite = newItem.itemIcon;
+
+        return true;
     }
 
     public void TakeHalfStack()
@@ -164,7 +174,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             //IF this slot is filtered to only some items then we will check if the item in the drag container is in the list of allowed items IF it is not in the list then we just return
             if(_filtered)
             {
-                if (_allowedItems.Where(item => GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item.Equals(item)).SingleOrDefault() == null)
+                if (_allowedTypes.Where(type => GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item.type.Equals(type)).ToList().Count == 0)
                 {
                     return;
                 } 

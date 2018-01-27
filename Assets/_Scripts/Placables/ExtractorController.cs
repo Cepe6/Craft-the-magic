@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ExtractorController : MonoBehaviour {
+public class ExtractorController : InventoryAbstract {
     [SerializeField]
     private GameObject _UIPanel;
 
@@ -28,6 +28,8 @@ public class ExtractorController : MonoBehaviour {
     private float _currentFuelLeft;
     private TileData _currentMined;
 
+    private MachineOutputController _output;
+
     private void OnEnable()
     {
         _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
@@ -40,7 +42,11 @@ public class ExtractorController : MonoBehaviour {
         _outputSlot = _currentInstance.transform.Find("OutputSlot").GetComponent<Slot>();
         _outputProgressSlider = _currentInstance.transform.Find("OutputProgressSlider").GetComponent<Slider>();
         _fuelAmmountLeft = _currentInstance.transform.Find("FuelAmmountLeft").GetComponent<Slider>();
-        _currentInstance.SetActive(false);        
+        _currentInstance.SetActive(false);
+
+        
+
+        _output = transform.Find("Output").GetComponent<MachineOutputController> ();
     }
 
     private void Update()
@@ -77,7 +83,19 @@ public class ExtractorController : MonoBehaviour {
             }
         } else if(_currentMineTime >= GlobalVariables.EXTRACTOR_MINE_TIME && _currentMined != null && _currentMined.GetObjectAbove() != null) 
         {
-            if (_outputSlot.currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
+            bool output = false;
+
+            if(_output.GetInventoryColliding() != null)
+            {
+                if(_output.GetInventoryColliding().AddItemAndReturnRemainingAmmount(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1) == 0)
+                {
+                    _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
+                    _currentMineTime = 0;
+                    output = true;
+                }
+            }
+
+            if (!output && _outputSlot.currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
                 _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
                 if(_outputSlot.item == null)
@@ -138,6 +156,7 @@ public class ExtractorController : MonoBehaviour {
 
     private void OnDestroy()
     {
-        Destroy(_currentInstance);
+        if(_currentInstance != null) 
+            Destroy(_currentInstance);
     }   
 }

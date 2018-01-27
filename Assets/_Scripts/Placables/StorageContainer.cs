@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class StorageContainer : MonoBehaviour {
+public class StorageContainer : InventoryAbstract
+{
     [SerializeField]
     private GameObject _UIPanel;
 
@@ -20,6 +21,17 @@ public class StorageContainer : MonoBehaviour {
         _uiController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<UIController>();
 
         _currentInstance = Instantiate(_UIPanel, _inventory.transform);
+        _currentInstance.SetActive(false);
+
+        int i = 0;
+
+        _slotsCount = _currentInstance.GetComponentsInChildren<Slot>().Length;
+        _slots = new Slot[_slotsCount];
+        foreach(Slot slot in _currentInstance.GetComponentsInChildren<Slot> ())
+        {
+            _slots[i++] = slot;
+
+        }
     }
 
     private void Update()

@@ -23,7 +23,7 @@ public class SlotEditor : Editor
         serializedObject.Update();
         if (_slot.IsFiltered())
         {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("_allowedItems"), true);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_allowedTypes"), true);
         }
         serializedObject.ApplyModifiedProperties();
     }

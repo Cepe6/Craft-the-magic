@@ -5,7 +5,7 @@
 public class Item : ScriptableObject
 {
     [SerializeField]
-    private ItemsEnum _type;
+    private ItemTypesEnum _type;
     [SerializeField]
     private Sprite _itemIcon;
     [SerializeField]
@@ -14,7 +14,7 @@ public class Item : ScriptableObject
     private Item _interactionResult;
 
 
-    public ItemsEnum type {
+    public ItemTypesEnum type {
         get { return _type; }
         set { _type = value;  }
     }

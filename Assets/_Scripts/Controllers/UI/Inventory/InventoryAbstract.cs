@@ -44,9 +44,10 @@ public abstract class InventoryAbstract : MonoBehaviour
         {
             if (_slots[i].item == null)
             {
-                _slots[i].InitItem(item, ammountLeft);
-
-                return 0;
+                if (_slots[i].InitItem(item, ammountLeft))
+                {
+                    return 0;
+                }
             }
         }
 

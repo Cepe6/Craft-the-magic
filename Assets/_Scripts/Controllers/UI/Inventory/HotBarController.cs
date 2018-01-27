@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class HotBarController : InventoryAbstract {
+public class HotBarController : StaticInventory {
     private int _lastPos = 0;
 
     [SerializeField]
