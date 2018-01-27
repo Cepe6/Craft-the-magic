@@ -13,6 +13,8 @@ public class Item : ScriptableObject
     [SerializeField]
     private Item _interactionResult;
 
+    [SerializeField]
+    private GameObject _placableGO;
 
     public ItemTypesEnum type {
         get { return _type; }
@@ -32,5 +34,10 @@ public class Item : ScriptableObject
     {
         get { return _interactionResult; }
         set { _interactionResult = value; }
+    }
+
+    public GameObject placableGO
+    {
+        get { return _placableGO; }
     }
 }

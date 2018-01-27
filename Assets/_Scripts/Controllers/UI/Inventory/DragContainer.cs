@@ -25,15 +25,26 @@ public class DragContainer : MonoBehaviour {
 
     private void Start()
     {
-        BeginDrag();
-
-        
+        BeginDrag();        
     }
 
     private void Update()
     {
+        if(GlobalVariables.CURRENT_PLACABLE != null)
+        {
+            if(!EventSystem.current.IsPointerOverGameObject())
+            {
+                HideGO();
+            } else
+            {
+                ShowGO();
+            }
+        }
+
         if (currentAmmount == 0 || item == null)
         {
+            if (GlobalVariables.CURRENT_PLACABLE != null)
+                Destroy(GlobalVariables.CURRENT_PLACABLE);
             Destroy(this.gameObject); 
         }
         else
@@ -90,5 +101,17 @@ public class DragContainer : MonoBehaviour {
             yield return null;
         }
 
+    }
+
+    private void HideGO()
+    {
+        _itemIcon.enabled = false;
+        _itemAmmount.enabled    = false;
+    }
+
+    private void ShowGO()
+    {
+        _itemIcon.enabled = true;
+        _itemAmmount.enabled = true;
     }
 }

@@ -2,5 +2,6 @@
     Pickaxe,
     Fuel,
     Ore,
-    Ingot
+    Ingot,
+    Placable
 }

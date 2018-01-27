@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class Placable : MonoBehaviour {
     [SerializeField]
@@ -25,7 +26,8 @@ public class Placable : MonoBehaviour {
     private Color _placableNotAllowedIndicatorsColor = new Color(1f, 0f, 0f, 0.2f);
 
     private BoxCollider _collider;
-    private bool _collidingWithPlayer;
+    private List<GameObject> _nonResourceCollidingGOs = new List<GameObject> ();
+    
 
     private void Start()
     {
@@ -33,7 +35,7 @@ public class Placable : MonoBehaviour {
         _placableIndicatorsMaterial = new Material(Shader.Find("Transparent/Diffuse"));
 
         _collider = gameObject.AddComponent<BoxCollider>();
-        _collider.size = new Vector3(sizeX * GlobalVariables.TILE_SIZE, 10f, sizeY * GlobalVariables.TILE_SIZE);
+        _collider.size = new Vector3((sizeX * GlobalVariables.TILE_SIZE) - 0.1f, 10f, (sizeY * GlobalVariables.TILE_SIZE) - 0.1f);
         _collider.center = new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
         _collider.isTrigger = true;
 
@@ -61,59 +63,77 @@ public class Placable : MonoBehaviour {
 
     private void Update()
     {
-        Vector3 mousePoisition = Camera.main.ScreenToWorldPoint(Input.mousePosition)  - new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX - 1) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY - 1) / 2);
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            HideGO();
+        }
+        else
+        {
+            ShowGO();
+        }
+
+        Vector3 mousePoisition = Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX - 1) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY - 1) / 2);
         transform.position = new Vector3(ClosestTen(mousePoisition.x), 0.1f, ClosestTen(mousePoisition.z));
 
         UpdateIndicators();
+    }
 
-        if(Input.GetMouseButton(0))
+    private void OnMouseDown()
+    {
+        if (_currentlyPlacable && !EventSystem.current.IsPointerOverGameObject())
         {
-            if(_currentlyPlacable)
+            _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().materials[0] };
+            _collider.isTrigger = false;
+            _collider.size -= new Vector3(0f, .1f, 0f);
+
+            for (int i = 0; i < sizeX; i++)
             {
-                
-                _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().materials[0] };
-                _collider.isTrigger = false;
-
-                for (int i = 0; i < sizeX; i++)
+                for (int j = 0; j < sizeY; j++)
                 {
-                    for (int j = 0; j < sizeY; j++)
-                    {
-                        _tilesUnder[i, j] = _chunksController.GetTile(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
-                        Destroy(_placableIndicators[i, j]);
-                    }
+                    _tilesUnder[i, j] = _chunksController.GetTile(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
+                    Destroy(_placableIndicators[i, j]);
                 }
-
-                foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
-                {
-                    script.enabled = true;
-                }
-
-
-                this.enabled = false;
             }
+
+            foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
+            {
+                script.enabled = true;
+            }
+
+            GlobalVariables.CURRENT_PLACABLE = null;
+
+
+            if (GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
+            {
+                GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+            }
+            else
+            {
+                HotBarController.Instance.GetCurrentSlot().currentAmmount--;
+            }
+
+            Destroy(this);
         }
     }
 
     private void UpdateIndicators()
     {
-        bool _hasNotAllowed = false;
+        _currentlyPlacable = true;
         for(int x = 0; x < sizeX; x++)
         {
             for(int y = 0; y < sizeY; y++) {
-                if((filteredTiles.Where(tile => tile.Equals(_chunksController.GetTile(_placableIndicators[x, y].transform.position.x, _placableIndicators[x, y].transform.position.z).GetTileType())).SingleOrDefault() != 0) == _onlyThese && !_collidingWithPlayer)
+                if((filteredTiles.Where(tile => tile.Equals(_chunksController.GetTile(_placableIndicators[x, y].transform.position.x, _placableIndicators[x, y].transform.position.z).GetTileType())).SingleOrDefault() != 0) == _onlyThese && _nonResourceCollidingGOs.Count == 0)
                 {
                     _placableIndicators[x, y].GetComponent<MeshRenderer>().material.color = _placableAllowIndicatorsColor;
                     _model.GetComponent<MeshRenderer>().materials[1].color = _placableAllowIndicatorsColor;
                 } else
                 {
-                    _hasNotAllowed = true;
+                    _currentlyPlacable = false;
                     _placableIndicators[x, y].GetComponent<MeshRenderer>().material.color = _placableNotAllowedIndicatorsColor;
                     _model.GetComponent<MeshRenderer>().materials[1].color = _placableNotAllowedIndicatorsColor;
                 }
             }
         }
-
-        _currentlyPlacable = !_hasNotAllowed;
     }
 
     private int ClosestTen(float number)
@@ -124,17 +144,17 @@ public class Placable : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject == GameObject.FindGameObjectWithTag("Player"))
+        if(other.gameObject.GetComponent<Rigidbody> () != null)
         {
-            _collidingWithPlayer = true;
+            _nonResourceCollidingGOs.Add(other.gameObject);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == GameObject.FindGameObjectWithTag("Player"))
+        if (other.gameObject.GetComponent<Rigidbody>() != null)
         {
-            _collidingWithPlayer = false;
+            _nonResourceCollidingGOs.Remove(other.gameObject);
         }
     }
 
@@ -146,5 +166,29 @@ public class Placable : MonoBehaviour {
     public Vector2 GetSize()
     {
         return new Vector2(sizeX, sizeY);
+    }
+
+    private void OnDisable()
+    {
+        if(GlobalVariables.CURRENT_PLACABLE == this.gameObject)
+        {
+            GlobalVariables.CURRENT_PLACABLE = null;
+        }
+    }
+
+    private void HideGO()
+    {
+        foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
+        {
+            renderer.enabled = false;
+        }
+    }
+
+    private void ShowGO()
+    {
+        foreach(MeshRenderer renderer in GetComponentsInChildren<MeshRenderer> ())
+        {
+            renderer.enabled = true;
+        }
     }
 }

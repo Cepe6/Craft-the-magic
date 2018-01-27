@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static class GlobalVariables { 
     //Terrain perlin
     public const int BIOMES_OFFSET = 32768;
@@ -10,6 +12,7 @@ public static class GlobalVariables {
     //Inventory
     public const int MAX_STACK_AMMOUNT = 99;
     public static DragContainer ITEM_CONTAINER_BEING_DRAGGED = null;
+    public static GameObject CURRENT_PLACABLE = null;
     public const int PLAYER_INVENTORY_SIZE = 100;
     public const int HOTBAR_SIZE = 10;
     public const int STORAGE_CONTAINER_SIZE = 100;

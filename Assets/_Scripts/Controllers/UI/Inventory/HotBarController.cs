@@ -2,7 +2,15 @@
 using UnityEngine.UI;
 
 public class HotBarController : StaticInventory {
-    private int _lastPos = 0;
+    //Singleton
+    private static HotBarController _instance;
+    public static HotBarController Instance
+    {
+        get { return _instance; }
+    }
+
+
+    private int _lastPos = -1;
 
     [SerializeField]
     private Sprite _hotbarSelectedSprite = null;
@@ -13,29 +21,44 @@ public class HotBarController : StaticInventory {
 
     private void Awake()
     {
+        if(_instance == null)
+        {
+            _instance = this;
+        }
+
         _slotsCount = GlobalVariables.HOTBAR_SIZE;
     }
 
     private void Update()
     {
-
-    }
-
-    private void Start()
-    {
-        if (Application.isPlaying)
+        if (_lastPos != -1 && _slots[_lastPos].item != null && _slots[_lastPos].item.type == ItemTypesEnum.Placable && GlobalVariables.CURRENT_PLACABLE == null)
         {
-            ChangePosition(0);
+            GlobalVariables.CURRENT_PLACABLE = Instantiate(_slots[_lastPos].item.placableGO);
         }
     }
 
+    public Slot GetCurrentSlot()
+    {
+        return _slots[_lastPos];
+    }
+    
     public void ChangePosition(int index)
     {
-        GameObject oldSlot = _slots[_lastPos].gameObject;
-        oldSlot.GetComponent<Image>().sprite = _hotbarNotSelectedSprite;
+        if (_lastPos != -1)
+        {
+            GameObject oldSlot = _slots[_lastPos].gameObject;
+            oldSlot.GetComponent<Image>().sprite = _hotbarNotSelectedSprite;
+
+            if (_slots[_lastPos].item != null && _slots[_lastPos].item.type == ItemTypesEnum.Placable)
+            {
+                if (GlobalVariables.CURRENT_PLACABLE != null)
+                    Destroy(GlobalVariables.CURRENT_PLACABLE);
+            }
+        }
 
         GameObject newSlot = _slots[index].gameObject;
         newSlot.GetComponent<Image>().sprite = _hotbarSelectedSprite;
+        
 
         _lastPos = index;
     }

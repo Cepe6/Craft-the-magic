@@ -155,7 +155,13 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
                     }
                 }
                 //Else the shift is not being held and we are going to take the full ammount of the item in the slot and create a new drag container with it
-                else { 
+                else
+                {
+                    if (_item.type == ItemTypesEnum.Placable)
+                    {
+                        GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
+                    }
+
                     TakeFullStack();
                 }
           
@@ -164,6 +170,11 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             //Else if the button clicked is the right mouse button we will take only half the current ammount of the item in the slot and create a new drag container with it
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
+                if (_item.type == ItemTypesEnum.Placable)
+                {
+                    GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
+                }
+
                 TakeHalfStack();
             }
         }

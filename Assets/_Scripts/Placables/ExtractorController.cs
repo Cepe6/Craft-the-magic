@@ -4,64 +4,37 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ExtractorController : InventoryAbstract {
-    [SerializeField]
-    private GameObject _UIPanel;
-
-    private GameObject _currentInstance;
-
-    private GameObject _inventory;
-    private UIController _uiController;
+public class ExtractorController : FuelBurnerMachine {
     
-    private bool _open = false;
-
     private TileData[,] _tilesUnder;
     private Vector2 _size;
 
-    private Slot _fuelSlot;
-    private Slot _outputSlot;
-    private Slider _outputProgressSlider;
-    private Slider _fuelAmmountLeft;
     
-    private bool _fuelBurning;
     private float _currentMineTime = 0f;
-    private float _currentFuelLeft;
     private TileData _currentMined;
 
     private MachineOutputController _output;
 
-    private void OnEnable()
+    protected void OnEnable()
     {
-        _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
-        _uiController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<UIController>();
-        _size = GetComponent<Placable>().GetSize();
-        _tilesUnder = GetComponent<Placable>().GetTilesUnder();
-
-        _currentInstance = Instantiate(_UIPanel, _inventory.transform);
-        _fuelSlot = _currentInstance.transform.Find("FuelSlot").GetComponent<Slot>();
-        _outputSlot = _currentInstance.transform.Find("OutputSlot").GetComponent<Slot>();
-        _outputProgressSlider = _currentInstance.transform.Find("OutputProgressSlider").GetComponent<Slider>();
-        _fuelAmmountLeft = _currentInstance.transform.Find("FuelAmmountLeft").GetComponent<Slider>();
-        _currentInstance.SetActive(false);
-
-        
-
         _output = transform.Find("Output").GetComponent<MachineOutputController> ();
+
+        _tilesUnder = GetComponent<Placable>().GetTilesUnder(); 
+
+        base.OnEnable();
+    }
+     
+    protected void Update()
+    {
+        _slidersDictionary["OutputProgressSlider"].value = Mathf.Lerp(0f, 1f, _currentMineTime / GlobalVariables.EXTRACTOR_MINE_TIME);
+        Mine();
+
+        base.Update();
     }
 
-    private void Update()
+    private void Mine()
     {
-        if (Input.GetButton("Cancel"))
-        {
-            if (_open)
-            {
-                _open = false;
-                _currentInstance.SetActive(false);
-            }
-        }
-
-
-        if(_currentMineTime < GlobalVariables.EXTRACTOR_MINE_TIME)
+        if (_currentMineTime < GlobalVariables.EXTRACTOR_MINE_TIME)
         {
             if (_currentMined == null || _currentMined.GetObjectAbove() == null)
                 _currentMined = RandomTile();
@@ -70,7 +43,7 @@ public class ExtractorController : InventoryAbstract {
             {
                 if (!_fuelBurning)
                 {
-                    if (_fuelSlot.currentAmmount > 0)
+                    if (_slotsDictionary["FuelSlot"].currentAmmount > 0)
                     {
                         StartCoroutine(BurnFuel());
                     }
@@ -81,13 +54,14 @@ public class ExtractorController : InventoryAbstract {
                     _currentMineTime += Time.deltaTime;
                 }
             }
-        } else if(_currentMineTime >= GlobalVariables.EXTRACTOR_MINE_TIME && _currentMined != null && _currentMined.GetObjectAbove() != null) 
+        }
+        else if (_currentMineTime >= GlobalVariables.EXTRACTOR_MINE_TIME && _currentMined != null && _currentMined.GetObjectAbove() != null)
         {
             bool output = false;
 
-            if(_output.GetInventoryColliding() != null)
+            if (_output.GetInventoryColliding() != null)
             {
-                if(_output.GetInventoryColliding().AddItemAndReturnRemainingAmmount(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1) == 0)
+                if (_output.GetInventoryColliding().AddItemAndReturnRemainingAmmount(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1) == 0)
                 {
                     _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
                     _currentMineTime = 0;
@@ -95,38 +69,22 @@ public class ExtractorController : InventoryAbstract {
                 }
             }
 
-            if (!output && _outputSlot.currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
+            if (!output && _slotsDictionary["OutputSlot"].currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
                 _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
-                if(_outputSlot.item == null)
+                if (_slotsDictionary["OutputSlot"].item == null)
                 {
-                    _outputSlot.InitItem(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1);
-                } else
+                    _slotsDictionary["OutputSlot"].InitItem(_currentMined.GetObjectAbove().GetComponent<ResourceController>().item, 1);
+                }
+                else
                 {
-                    _outputSlot.currentAmmount++;
+                    _slotsDictionary["OutputSlot"].currentAmmount++;
                 }
                 _currentMineTime = 0;
             }
         }
-
-        _fuelAmmountLeft.value = Mathf.Lerp(0f, 1f, _currentFuelLeft / GlobalVariables.COAL_FUEL_AMMOUNT);
-        _outputProgressSlider.value = Mathf.Lerp(0f, 1f, _currentMineTime / GlobalVariables.EXTRACTOR_MINE_TIME);
     }
-
-    private IEnumerator BurnFuel()
-    {
-        _fuelBurning = true;
-        _fuelSlot.currentAmmount--;
-        _currentFuelLeft = GlobalVariables.COAL_FUEL_AMMOUNT;
-        while (_currentFuelLeft > 0)
-        { 
-            _currentFuelLeft -= Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
-        _fuelBurning = false;
-        yield return null;
-    }
-
+    
     private TileData RandomTile()
     {
         int x = (int)Random.Range(0, _size.x);
@@ -138,25 +96,5 @@ public class ExtractorController : InventoryAbstract {
         }
 
         return _tilesUnder[x, y];
-    }
-
-    private void OnMouseOver()
-    {
-        if (isActiveAndEnabled && !EventSystem.current.IsPointerOverGameObject())
-        {
-            if (Input.GetMouseButton(1) && !_open && GetComponent<Interactable> ().IsInteractable())
-            {
-                _currentInstance.SetActive(true);
-                _uiController.ShowInventory();
-                
-                _open = true;
-            }
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if(_currentInstance != null) 
-            Destroy(_currentInstance);
-    }   
+    } 
 }

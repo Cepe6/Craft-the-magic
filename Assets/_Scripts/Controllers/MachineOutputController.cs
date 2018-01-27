@@ -7,17 +7,16 @@ public class MachineOutputController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("colliding");
-        if (other.GetComponent<InventoryAbstract>() != null && _collidingInventory == null)
+        if (other.GetComponent<InventoryAbstract>() != null && other != this.gameObject && _collidingInventory == null)
         {
-            Debug.Log("Colliding inventory set");
             _collidingInventory = other.GetComponent<InventoryAbstract>();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        _collidingInventory = null;
+        if(_collidingInventory != null && _collidingInventory.gameObject == other.gameObject)
+            _collidingInventory = null;
     }
 
     public InventoryAbstract GetInventoryColliding()
