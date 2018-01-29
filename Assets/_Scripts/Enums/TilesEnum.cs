@@ -8,5 +8,5 @@
     DARK_WATER = 10,
 
     //CHANGE
-    COAL = 5
+    COAL = 7
 }

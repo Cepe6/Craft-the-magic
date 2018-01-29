@@ -54,6 +54,7 @@ public class Chunk : MonoBehaviour {
 
     private void InitializeDataMap()
     {
+        //Initialize different tile types maps
         TilesEnum[,] _biomesMap = PerlinNoiseGenerator.GenerateBiomesMap(_chunkCoordinates);
         TilesEnum[,] _waterMap = PerlinNoiseGenerator.GenerateWaterMap(_chunkCoordinates);
         bool[,] _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates);
@@ -72,7 +73,7 @@ public class Chunk : MonoBehaviour {
                 {
                     _tilesDataMap[x, y] = new TileData(TilesEnum.IRON_ORE, NewResource(TilesEnum.IRON_ORE, x, y));
                 }
-                else if (_coalMap[x, y])
+                else if (_coalMap[x, y]) //Else if there is copper on this tile
                 {
                     _tilesDataMap[x, y] = new TileData(TilesEnum.COAL, NewResource(TilesEnum.COAL, x, y));
                 }
