@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour {
     [SerializeField]
     private GameObject _inventoryPanel;
+    [SerializeField]
+    private GameObject _craftingPanel;
 
     [SerializeField]
     private HotBarController _hotBarController;
@@ -29,5 +31,16 @@ public class UIController : MonoBehaviour {
     public void ChangeHotbarPosition(int index)
     {
         _hotBarController.ChangePosition(index);
+    }
+
+    public void ShowCraftingPanel()
+    {
+        _craftingPanel.SetActive(true);
+    }
+
+    public void CloseCraftingPanel()
+    {
+        _craftingPanel.SetActive(false);
+
     }
 }

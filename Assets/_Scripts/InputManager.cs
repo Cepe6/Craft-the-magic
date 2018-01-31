@@ -30,6 +30,7 @@ public class InputManager : MonoBehaviour {
             if (_uiController.InventoryState())
             {
                 _uiController.CloseInventory();
+                _uiController.CloseCraftingPanel();
                 _player.EnableControls();
             }
         }
@@ -42,6 +43,7 @@ public class InputManager : MonoBehaviour {
             if (Input.GetKeyDown(_keyBindings.GetKeyCodeFromName("OpenInv")))
             {
                 _uiController.ShowInventory();
+                _uiController.ShowCraftingPanel();
                 _player.DisableControls();
             }
         }

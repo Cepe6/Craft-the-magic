@@ -93,4 +93,41 @@ public abstract class InventoryAbstract : MonoBehaviour
             }
         }
     }
+
+    public bool CheckForItem(Item item, int ammount)
+    {
+        int foundAmmount = 0;
+
+        for(int i = 0; i < _slotsCount; i++)
+        {
+            if (_slots[i].item != null && _slots[i].item.Equals(item))
+                foundAmmount += _slots[i].currentAmmount;
+        }
+
+        if (foundAmmount >= ammount)
+            return true;
+
+        return false;
+    }
+
+    public void GetItem(Item item, int ammount)
+    {
+        int remainingAmmount = ammount;
+
+        for(int i = 0; i < _slotsCount; i++)
+        {
+            if(_slots[i].item != null && _slots[i].item.Equals(item))
+            {
+                if(remainingAmmount >= _slots[i].currentAmmount)
+                {
+                    remainingAmmount -= _slots[i].currentAmmount;
+                    _slots[i].currentAmmount = 0;
+                } else
+                {
+                    _slots[i].currentAmmount -= remainingAmmount;
+                    remainingAmmount = 0;
+                }
+            }
+        }
+    }
 }

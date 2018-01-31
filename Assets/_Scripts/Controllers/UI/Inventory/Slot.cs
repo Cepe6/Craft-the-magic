@@ -6,14 +6,10 @@ using UnityEngine.EventSystems;
 using System.Linq;
 
 [System.Serializable]
-public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+public class Slot : SlotAbstract, IPointerDownHandler
 {
     [SerializeField]
-    private Item _item;
-    [SerializeField]
     private int _ammount;
-    
-    private Image _itemIcon;
     private Text _itemAmmount;
     
     private GameObject _dragContainer;
@@ -22,24 +18,21 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     [SerializeField]
     private List<ItemTypesEnum> _allowedTypes;
     
-    private Color _originalColor;
 
     [SerializeField]
     private bool _inventorySlot = true;
 
-    private bool _hovered = false;
 
     private void Awake()
     {
-        _itemIcon = transform.Find("Image").GetComponent<Image> ();
+        base.Awake();
         _itemAmmount = transform.Find("Ammount").GetComponent<Text>();
 
-        _originalColor = GetComponent<Image>().color;
+
         if(_item != null)
         {
             InitItem(_item, _ammount);
         }
-
     }
 
     private void Start()
@@ -300,19 +293,7 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     public bool IsFiltered()
     {
         return _filtered;
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        GetComponent<Image>().color = SerializedGlobalVariables.instance.slotOnHoverColor;
-        _hovered = true;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        GetComponent<Image>().color = _originalColor;
-        _hovered = false;
-    }
+    }    
 
     public void CopySlotProperties(Slot targetSlot)
     {
@@ -324,15 +305,6 @@ public class Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     {
         _item = null;
         _ammount = 0;
-    }
-
-    public Item item
-    {
-        get { return _item; }
-        set
-        {
-            _item = value;
-        }
     }
 
     public int currentAmmount
