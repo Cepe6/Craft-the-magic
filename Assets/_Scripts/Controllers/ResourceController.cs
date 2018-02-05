@@ -8,7 +8,6 @@ public class ResourceController : MonoBehaviour {
     private Item _item;
     private int _ammount;
     
-    [SerializeField]
     private Slider _actionSlider;
 
 
@@ -103,7 +102,7 @@ public class ResourceController : MonoBehaviour {
         }
         else
         {
-            if (_currentMineSessionTime >= GlobalVariables.IRON_PICK_MINE_TIME)
+            if (_currentMineSessionTime >= GlobalVariables.MINE_TIME)
             {
                 _inventory.AddOrDrop(item, 1);
                 _ammount--;
@@ -118,7 +117,7 @@ public class ResourceController : MonoBehaviour {
                 {
                     _actionSlider.GetComponent<Canvas>().enabled = true;
                 }
-                _actionSlider.value = Mathf.Lerp(0f, 1f, _currentMineSessionTime / GlobalVariables.IRON_PICK_MINE_TIME);
+                _actionSlider.value = Mathf.Lerp(0f, 1f, _currentMineSessionTime / GlobalVariables.MINE_TIME);
 
                 _currentMineSessionTime += Time.deltaTime;
             }

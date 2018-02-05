@@ -54,6 +54,25 @@ public class SerializedGlobalVariables : MonoBehaviour {
         }
     }
 
+    [SerializeField]
+    private GameObject _itemInfoPanel = null;
+    public GameObject ItemInfoPanel
+    {
+        get
+        {
+            return _itemInfoPanel;
+        }
+    }
+
+    [SerializeField]
+    private Material _interactableMaterial;
+    public Material InteractableMaterial {
+        get
+        {
+            return _interactableMaterial;
+        }
+    }
+
     private void Awake()
     {
         if(_instance == null)

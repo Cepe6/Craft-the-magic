@@ -1,11 +1,16 @@
 fileFormatVersion: 2
 guid: 5593f95f66bd52741b8286b447224051
-timeCreated: 1515354945
+timeCreated: 1517619021
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: 00_Pickaxe
     21300002: 01_Iron_Ore
+    21300004: ItemTextures_0
+    21300006: ItemTextures_1
+    21300008: ItemTextures_2
+    21300010: ItemTextures_3
+    21300012: ItemTextures_4
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -72,11 +77,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 00_Pickaxe
+      name: ItemTextures_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 192
         width: 64
         height: 64
       alignment: 0
@@ -85,11 +90,50 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: 01_Iron_Ore
+      name: ItemTextures_1
       rect:
         serializedVersion: 2
         x: 64
-        y: 0
+        y: 192
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ItemTextures_2
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 192
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ItemTextures_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 192
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ItemTextures_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 128
         width: 64
         height: 64
       alignment: 0

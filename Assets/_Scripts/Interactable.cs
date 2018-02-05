@@ -17,7 +17,7 @@ public class Interactable : MonoBehaviour
     // Use this for initialization
     void OnEnable()
     {
-        _onHoverMaterial = new Material(Shader.Find("Transparent/Diffuse"));
+        _onHoverMaterial = new Material(SerializedGlobalVariables.instance.InteractableMaterial);
         _player = GameObject.FindGameObjectWithTag("Player");
         _collider = GetComponent<BoxCollider> ();
     }

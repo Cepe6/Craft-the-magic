@@ -44,6 +44,11 @@ public class Slot : SlotAbstract, IPointerDownHandler
     {
         if (_ammount == 0 || _item == null)
         {
+            if(_tooltip != null)
+            {
+                Destroy(_tooltip);
+            }
+
             _item = null;
 
             _itemAmmount.gameObject.SetActive(false);

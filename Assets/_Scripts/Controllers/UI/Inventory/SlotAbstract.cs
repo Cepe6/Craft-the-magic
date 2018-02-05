@@ -9,6 +9,7 @@ public class SlotAbstract : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     protected Item _item;
     protected Image _itemIcon;
 
+    protected GameObject _tooltip;
 
     private Color _originalColor;
 
@@ -20,11 +21,18 @@ public class SlotAbstract : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (_item != null)
+        {
+            _tooltip = Instantiate(SerializedGlobalVariables.instance.ItemInfoPanel, new Vector3(Input.mousePosition.x, Input.mousePosition.y - GetComponent<RectTransform>().rect.height, 0f), Quaternion.identity, GameObject.FindGameObjectWithTag("Canvas").transform);
+            _tooltip.GetComponent<ItemToolTipController>().Initialize(_item.name);
+        }
         GetComponent<Image>().color = SerializedGlobalVariables.instance.slotOnHoverColor;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if(_tooltip != null)
+            Destroy(_tooltip);
         GetComponent<Image>().color = _originalColor;
     }
 

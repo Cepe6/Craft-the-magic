@@ -144,7 +144,7 @@ public class Placable : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<Rigidbody> () != null)
+        if(other.gameObject.GetComponent<Rigidbody> () != null && other.isTrigger == false)
         {
             _nonResourceCollidingGOs.Add(other.gameObject);
         }
@@ -152,7 +152,7 @@ public class Placable : MonoBehaviour {
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.GetComponent<Rigidbody>() != null)
+        if (other.gameObject.GetComponent<Rigidbody>() != null && other.isTrigger == false)
         {
             _nonResourceCollidingGOs.Remove(other.gameObject);
         }

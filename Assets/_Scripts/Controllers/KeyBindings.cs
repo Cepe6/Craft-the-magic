@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.IO;
 using System.Text.RegularExpressions;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class KeyBindings : MonoBehaviour {    
     private Dictionary<string, KeyCode> _bindings = new Dictionary<string, KeyCode>();
@@ -15,7 +18,7 @@ public class KeyBindings : MonoBehaviour {
 #if UNITY_EDITOR
         _bindingsFilePath = Application.dataPath + "/Resources/Settings/KeyBindings.json";
 #elif UNITY_STANDALONE
-        _bindingsFilePath = Application.dataPath + "/Data/Settings/KeyBindings.json";
+        _bindingsFilePath = Application.dataPath + "/Resources/Settings/KeyBindings.json";
 #endif
         DontDestroyOnLoad(this.gameObject);
     }
@@ -61,7 +64,9 @@ public class KeyBindings : MonoBehaviour {
         }
         streamWriter.Close();
 
+#if UNITY_EDITOR
         AssetDatabase.ImportAsset(_bindingsFilePath);
+#endif
     }
 
     private void LoadBindings()

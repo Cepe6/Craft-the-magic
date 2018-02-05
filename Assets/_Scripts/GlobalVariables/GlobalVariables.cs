@@ -21,7 +21,7 @@ public static class GlobalVariables {
     public const int DROP_SIZE = 6;
 
     //Resource gathering
-    public const float IRON_PICK_MINE_TIME = 1f;
+    public const float MINE_TIME = 1f;
     public const float EXTRACTOR_MINE_TIME = 1f;
 
     //Player interact distance
