@@ -15,7 +15,7 @@ public class CraftingQueue : MonoBehaviour {
     [SerializeField]
     private Slider _progressSlider;
 
-    private List<QueueEntry> _entries = new List<QueueEntry> ();
+    private List<CraftingQueueEntry> _entries = new List<CraftingQueueEntry> ();
     private PlayerInventoryController _inventory;
 
     private bool _currentlyCrafting = false;
@@ -37,9 +37,9 @@ public class CraftingQueue : MonoBehaviour {
     public void AddEntry(Item item, int ammount, RecipeSlot recipe)
     {
         GameObject entry = Instantiate(_entryGO, _slotsWrapper.transform);
-        entry.GetComponent<QueueEntry>().Init(item, ammount, recipe);
+        entry.GetComponent<CraftingQueueEntry>().Init(item, ammount, recipe);
 
-        _entries.Add(entry.GetComponent<QueueEntry> ());
+        _entries.Add(entry.GetComponent<CraftingQueueEntry> ());
 
         if(!_currentlyCrafting)
         {
@@ -55,31 +55,43 @@ public class CraftingQueue : MonoBehaviour {
     private IEnumerator CraftQueue()
     {
         _currentlyCrafting = true;
+        
         while(_entries.Count > 0)
         {
-            float targetCraftTime = _entries[0].Recipe.CraftTime * _entries[0].Ammount;
-            _defaultSlot.GetComponent<QueueEntry>().Init(_entries[0].item, _entries[0].Ammount, _entries[0].Recipe);
+            while(_entries.Count > 0 && _entries[0] == null)
+            {
+                _entries.RemoveAt(0);
+            }
+
+            if(_entries.Count == 0) { break; }
+            int entryAmmount = _entries[0].Ammount;
+            float targetCraftTime = _entries[0].Recipe.ActionTime * _entries[0].Ammount;
+            _defaultSlot.GetComponent<CraftingQueueEntry>().Init(_entries[0].item, _entries[0].Ammount, _entries[0].Recipe);
 
             Destroy(_entries[0].gameObject);
             _entries.RemoveAt(0);
-
-            for (int i = 0; i < _defaultSlot.GetComponent<QueueEntry>().Ammount; i++)
+            
+            _currentCraftingTime = 0f;
+            while (_currentCraftingTime < targetCraftTime)
             {
-                _currentCraftingTime = 0f;
-                while (_currentCraftingTime < targetCraftTime)
+                if(_defaultSlot == null)
                 {
-                    _currentCraftingTime += Time.deltaTime;
-                    _progressSlider.value = Mathf.Lerp(0f, 1f, _currentCraftingTime / targetCraftTime);
-
-                    yield return new WaitForEndOfFrame();
+                    _progressSlider.value = 0f;
+                    _currentCraftingTime = 0f;
+                    break;
                 }
 
-                _inventory.AddOrDrop(_defaultSlot.GetComponent<QueueEntry>().item, 1);
-                _defaultSlot.GetComponent<QueueEntry>().DecrementAmmount();
+                _currentCraftingTime += Time.deltaTime;
+                _progressSlider.value = Mathf.Lerp(0f, 1f, _currentCraftingTime / targetCraftTime);
+
+                yield return new WaitForEndOfFrame();
             }
+
+            if(_defaultSlot != null)
+                _inventory.AddOrDrop(_defaultSlot.GetComponent<CraftingQueueEntry>().item, entryAmmount);
         }
 
-        _defaultSlot.GetComponent<QueueEntry>().Nullify();
+        _defaultSlot.GetComponent<CraftingQueueEntry>().Nullify();
         _progressSlider.value = 0f;
         _currentlyCrafting = false;
     }

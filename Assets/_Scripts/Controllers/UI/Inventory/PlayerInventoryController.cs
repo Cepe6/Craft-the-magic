@@ -5,8 +5,22 @@ using UnityEngine.UI;
 
 [System.Serializable]
 public class PlayerInventoryController : StaticInventory {
+    private static PlayerInventoryController _instance;
+
+    public static PlayerInventoryController Instance
+    {
+        get {
+            return _instance;
+        }
+    }
+
     private void Awake()
     {
+        if(_instance == null)
+        {
+            _instance = this;
+        }
+
         _slotsCount = GlobalVariables.PLAYER_INVENTORY_SIZE;
     }
 

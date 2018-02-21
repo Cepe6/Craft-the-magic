@@ -97,6 +97,7 @@ public class Slot : SlotAbstract, IPointerDownHandler
 
         GameObject dragContainer = Instantiate(_dragContainer, Input.mousePosition, Quaternion.identity, GameObject.FindGameObjectWithTag("Canvas").transform);
         dragContainer.GetComponent<DragContainer>().InitItem(item, halfAmmount);
+        
     }
 
     public void TakeFullStack()
@@ -127,133 +128,162 @@ public class Slot : SlotAbstract, IPointerDownHandler
         //If the slot is clicked without a container being dragged then we are going to interact with the slot directly
         if(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED == null && _item != null)
         {
-            if (eventData.button == PointerEventData.InputButton.Left)
-            {
-                //IF the shift is being held... then we are going to transfer items between inventories (hotbar-inventory, inventory-ore_gatherer_inventory, etc.)
-                if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                {
-                    //IF the item is from the player inventory, then we know we will be transferring it to the currently open inventory from some machine or the hotbar if there is no machine inventory open
-                    if(_inventorySlot) {
-                        HotBarController _hotbar = GameObject.FindGameObjectWithTag("Hotbar").GetComponent<HotBarController>();
-                        _ammount = _hotbar.AddItemAndReturnRemainingAmmount(_item, _ammount);
-                    }
-                    
-                    //Else we know that we need to transfer item from the currently open machine inventory to the player inventory
-                    else
-                    {
-                        GameObject _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
-                        if(_inventory == null)
-                        {
-                            return;
-                        }
-
-                        PlayerInventoryController _inventoryController = _inventory.GetComponent<PlayerInventoryController>();
-
-                        _ammount = _inventoryController.AddItemAndReturnRemainingAmmount(_item, _ammount);
-                    }
-                }
-                //Else the shift is not being held and we are going to take the full ammount of the item in the slot and create a new drag container with it
-                else
-                {
-                    if (_item.type == ItemTypesEnum.Placable)
-                    {
-                        GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
-                    }
-
-                    TakeFullStack();
-                }
-          
-            }
-
-            //Else if the button clicked is the right mouse button we will take only half the current ammount of the item in the slot and create a new drag container with it
-            else if (eventData.button == PointerEventData.InputButton.Right)
-            {
-                if (_item.type == ItemTypesEnum.Placable)
-                {
-                    GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
-                }
-
-                TakeHalfStack();
-            }
+            ClickedWithoutDragContainer(eventData);
         }
 
         //Else the slot is clicked and we have a container being dragged, execute interaction between the slot and the container
         else if(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
         {
-            //IF this slot is filtered to only some items then we will check if the item in the drag container is in the list of allowed items IF it is not in the list then we just return
-            if(_filtered)
+            ClickedWithDragContainer(eventData);
+        }
+    }
+
+    private void ClickedWithoutDragContainer(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            NoDragContainerLeftClick(eventData);
+        }
+
+        //Else if the button clicked is the right mouse button we will take only half the current ammount of the item in the slot and create a new drag container with it
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            if (_item.type == ItemTypesEnum.Placable)
             {
-                if (_allowedTypes.Where(type => GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item.type.Equals(type)).ToList().Count == 0)
+                GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
+            }
+
+            TakeHalfStack();
+        }
+    }
+
+    private void NoDragContainerLeftClick(PointerEventData eventData)
+    {
+        //IF the shift is being held... then we are going to transfer items between inventories (hotbar-inventory, inventory-ore_gatherer_inventory, etc.)
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            //IF the item is from the player inventory, then we know we will be transferring it to the currently open inventory from some machine or the hotbar if there is no machine inventory open
+            if (_inventorySlot)
+            {
+                HotBarController _hotbar = GameObject.FindGameObjectWithTag("Hotbar").GetComponent<HotBarController>();
+                _ammount = _hotbar.AddItemAndReturnRemainingAmmount(_item, _ammount);
+            }
+
+            //Else we know that we need to transfer item from the currently open machine inventory to the player inventory
+            else
+            {
+                GameObject _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
+                if (_inventory == null)
                 {
                     return;
-                } 
-            }
+                }
 
-            //IF the left mouse button is clicked
-            if (eventData.button == PointerEventData.InputButton.Left)
+                PlayerInventoryController _inventoryController = _inventory.GetComponent<PlayerInventoryController>();
+
+                _ammount = _inventoryController.AddItemAndReturnRemainingAmmount(_item, _ammount);
+            }
+        }
+        //Else the shift is not being held and we are going to take the full ammount of the item in the slot and create a new drag container with it
+        else
+        {
+            if (_item.type == ItemTypesEnum.Placable)
             {
-
-                //IF there is no item in this slot, drop the item from the drag container into the slot
-                if (_item == null)
-                {
-                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
-                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = 0;
-                }
-
-                //IF items are equal then add ammount form the drag container
-                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
-                {
-                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = AddToAmmountAndReturnRemaining(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
-                }
-
-                //IF items are different swap them
-                else
-                {
-                    Item tempItem = _item;
-                    int tempAmmount = _ammount;
-
-                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
-                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.InitItem(tempItem, tempAmmount);
-                }
+                GlobalVariables.CURRENT_PLACABLE = Instantiate(_item.placableGO);
             }
 
-            //ELSE IF the right mouse button is clicked
-            else if (eventData.button == PointerEventData.InputButton.Right)
+            TakeFullStack();
+        }
+    }
+
+    private void ClickedWithDragContainer(PointerEventData eventData)
+    {
+        //IF this slot is filtered to only some items then we will check if the item in the drag container is in the list of allowed items IF it is not in the list then we just return
+        if (_filtered)
+        {
+            if (_allowedTypes.Where(type => GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item.type.Equals(type)).ToList().Count == 0)
             {
-
-                //IF there is no item, initialize the slot with this item with ammount of one and decrease the ammount from the drag container with 1
-                if (_item == null)
-                {
-                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 1);
-                    GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
-                }
-
-                //IF the item in the slot is equal then just increase its ammount if possible and decrease the ammount in the drag container
-                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
-                {
-                    if (_ammount < GlobalVariables.MAX_STACK_AMMOUNT)
-                    {
-                        _ammount++;
-                        GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
-                    }
-                }
+                return;
             }
+        }
 
-            //ELSE IF the middle mouse button is clicked
-            else if (eventData.button == PointerEventData.InputButton.Middle)
+        //IF the left mouse button is clicked
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            DragContainerLeftClick();
+        }
+
+        //ELSE IF the right mouse button is clicked
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            DragContainerRightClick();
+        }
+
+        //ELSE IF the middle mouse button is clicked
+        else if (eventData.button == PointerEventData.InputButton.Middle)
+        {
+            DragContainerMiddleClick();
+        }
+    }
+
+    private void DragContainerLeftClick()
+    {
+        //IF there is no item in this slot, drop the item from the drag container into the slot
+        if (_item == null)
+        {
+            InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+            GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = 0;
+        }
+
+        //IF items are equal then add ammount form the drag container
+        else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+        {
+            GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount = AddToAmmountAndReturnRemaining(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+        }
+
+        //IF items are different swap them
+        else
+        {
+            Item tempItem = _item;
+            int tempAmmount = _ammount;
+
+            InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount);
+            GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.InitItem(tempItem, tempAmmount);
+        }
+    }
+
+    private void DragContainerRightClick()
+    {
+        //IF there is no item, initialize the slot with this item with ammount of one and decrease the ammount from the drag container with 1
+        if (_item == null)
+        {
+            InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 1);
+            GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+        }
+
+        //IF the item in the slot is equal then just increase its ammount if possible and decrease the ammount in the drag container
+        else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+        {
+            if (_ammount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
-                //IF the item is null first initialize it for the item in the container and then execute the mouse wheel control coroutine
-                if (_item == null)
-                {
-                    InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 0);
-                    StartCoroutine(MouseWheelControl());
-                }
-
-                //IF the item is equal to the drag container ammount then execute the mouse wheel control coroutine
-                else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item)) {
-                    StartCoroutine(MouseWheelControl());
-                }
+                _ammount++;
+                GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
             }
+        }
+    }
+
+    private void DragContainerMiddleClick()
+    {
+        //IF the item is null first initialize it for the item in the container and then execute the mouse wheel control coroutine
+        if (_item == null)
+        {
+            InitItem(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item, 0);
+            StartCoroutine(MouseWheelControl());
+        }
+
+        //IF the item is equal to the drag container ammount then execute the mouse wheel control coroutine
+        else if (_item.Equals(GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.item))
+        {
+            StartCoroutine(MouseWheelControl());
         }
     }
 
@@ -294,6 +324,7 @@ public class Slot : SlotAbstract, IPointerDownHandler
         Cursor.visible = true;
         yield return null;
     }
+    
 
     public bool IsFiltered()
     {

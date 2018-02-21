@@ -31,6 +31,7 @@ public class InputManager : MonoBehaviour {
             {
                 _uiController.CloseInventory();
                 _uiController.CloseCraftingPanel();
+                _uiController.CloseResearchPanel();
                 _player.EnableControls();
             }
         }
@@ -45,7 +46,14 @@ public class InputManager : MonoBehaviour {
                 _uiController.ShowInventory();
                 _uiController.ShowCraftingPanel();
                 _player.DisableControls();
+            } else if(Input.GetKeyDown(_keyBindings.GetKeyCodeFromName("OpenRes")))
+            {
+                _uiController.ShowInventory();
+                _uiController.ShowResearchPanel();
+                _player.DisableControls();
             }
+
+            
         }
     }
 

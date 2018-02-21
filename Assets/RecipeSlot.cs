@@ -4,19 +4,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class RecipeSlot : SlotAbstract, IPointerEnterHandler, IPointerClickHandler
+public abstract class RecipeSlot : SlotAbstract, IPointerEnterHandler
 {
     [SerializeField]
-    private List<Item> _requiredItems = new List<Item>();
+    protected List<Item> _requiredItems = new List<Item>();
     [SerializeField]
-    private List<int> _requiredAmmounts = new List<int>();
+    protected List<int> _requiredAmmounts = new List<int>();
     [SerializeField]
-    private float _craftingTime;
+    private float _actionTime;
 
     [SerializeField]
     private GameObject _recipeRequirementSlot;
 
-    private PlayerInventoryController _inventory;
+    protected PlayerInventoryController _inventory;
 
     private void Awake()
     {
@@ -27,25 +27,7 @@ public class RecipeSlot : SlotAbstract, IPointerEnterHandler, IPointerClickHandl
         _itemIcon.sprite = _item.itemIcon;
         _itemIcon.gameObject.SetActive(true);
     }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        for(int i = 0; i < _requiredItems.Count; i++)
-        {
-            if(!_inventory.CheckForItem(_requiredItems[i], _requiredAmmounts[i]))
-            {
-                return;
-            }
-        }
-
-        for(int i = 0; i < _requiredItems.Count; i++)
-        {
-            _inventory.GetItem(_requiredItems[i], _requiredAmmounts[i]);
-        }
-
-        CraftingQueue.Instance.AddEntry(_item, 1, this);
-    }
-
+    
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (_item != null)
@@ -64,8 +46,20 @@ public class RecipeSlot : SlotAbstract, IPointerEnterHandler, IPointerClickHandl
         GetComponent<Image>().color = SerializedGlobalVariables.instance.slotOnHoverColor;
     }
 
-    public float CraftTime
+    public float ActionTime
     {
-        get { return _craftingTime;  }
+        get { return _actionTime;  }
+    }
+
+    public Dictionary<Item, int> GetRecipeItems()
+    {
+        Dictionary<Item, int> dictionary = new Dictionary<Item, int>();
+
+        for(int i = 0; i < _requiredItems.Count; i++)
+        {
+            dictionary.Add(_requiredItems[i], _requiredAmmounts[i]);
+        }
+
+        return dictionary;
     }
 }

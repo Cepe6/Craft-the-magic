@@ -15,7 +15,9 @@ public class ChunksController : MonoBehaviour {
     List<GameObject> _generatedChunks = new List<GameObject>();
 
     GameObject chunkWrapper;
- 
+    
+    public static bool _changed = false;
+    
     // Use this for initialization
     void Start()
     {

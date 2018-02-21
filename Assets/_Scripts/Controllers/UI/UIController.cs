@@ -9,6 +9,8 @@ public class UIController : MonoBehaviour {
     private GameObject _inventoryPanel;
     [SerializeField]
     private GameObject _craftingPanel;
+    [SerializeField]
+    private GameObject _researchPanel;
 
     [SerializeField]
     private HotBarController _hotBarController;
@@ -42,5 +44,15 @@ public class UIController : MonoBehaviour {
     {
         _craftingPanel.SetActive(false);
 
+    }
+
+    public void ShowResearchPanel()
+    {
+        _researchPanel.SetActive(true);
+    }
+
+    public void CloseResearchPanel()
+    {
+        _researchPanel.SetActive(false);
     }
 }

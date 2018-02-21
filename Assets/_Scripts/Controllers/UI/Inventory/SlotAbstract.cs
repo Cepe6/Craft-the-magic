@@ -21,7 +21,7 @@ public class SlotAbstract : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (_item != null)
+        if (_item != null && GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED == null)
         {
             _tooltip = Instantiate(SerializedGlobalVariables.instance.ItemInfoPanel, new Vector3(Input.mousePosition.x, Input.mousePosition.y - GetComponent<RectTransform>().rect.height, 0f), Quaternion.identity, GameObject.FindGameObjectWithTag("Canvas").transform);
             _tooltip.GetComponent<ItemToolTipController>().Initialize(_item.name);
@@ -43,5 +43,13 @@ public class SlotAbstract : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             _item = value;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if(_tooltip != null)
+        {
+            Destroy(_tooltip);
+        }   
     }
 }

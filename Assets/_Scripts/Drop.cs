@@ -57,7 +57,7 @@ public class Drop : MonoBehaviour
         triangles.Add(2);
         triangles.Add(3);
 
-        float id = (float)_item.type;
+        float id = (float)_item.id;
         float unit = 1f / _spriteSheetSize;
 
         float idToSpriteSheetSize = id / _spriteSheetSize;
