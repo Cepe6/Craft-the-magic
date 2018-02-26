@@ -28,4 +28,18 @@ public class CameraController : MonoBehaviour {
         pos.z += _zOffset;
         transform.position = Vector3.Lerp(transform.position, pos, _cameraSpeed * Time.deltaTime);
     }
+
+    private void Update()
+    {
+        float mouseWheelAxis = Input.GetAxisRaw("Mouse ScrollWheel") / 100;
+        float currSize = GetComponent<Camera>().orthographicSize;
+
+        if(mouseWheelAxis < 0 && currSize > 50)
+        {
+            GetComponent<Camera>().orthographicSize -= 20;
+        } else if (mouseWheelAxis > 0 && currSize < 250)
+        {
+            GetComponent<Camera>().orthographicSize += 20;
+        }
+    }
 }

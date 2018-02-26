@@ -18,7 +18,7 @@ public class Chunk : MonoBehaviour {
 
     private bool _visited = false;
 
-    private int _seed;
+    private float _seed;
 
     //The layer maps of the chunk
     TileData[,] _tilesDataMap = new TileData[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
@@ -40,7 +40,7 @@ public class Chunk : MonoBehaviour {
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
     }
 
-    public void InitializeChunk(Vector2 coordinates, int seed)
+    public void InitializeChunk(Vector2 coordinates, float seed)
     {
         _chunkCoordinates = coordinates;
         _seed = seed;

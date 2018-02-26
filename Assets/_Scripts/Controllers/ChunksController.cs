@@ -18,13 +18,13 @@ public class ChunksController : MonoBehaviour {
     
     public static bool _changed = false;
 
-    private int _randomSeed;
+    private float _randomSeed;
 
     // Use this for initialization
     void Start()
     {
         chunkWrapper = new GameObject("Chunk wrapper");
-        _randomSeed = (int)Random.Range(10000f, 1000000f);
+        _randomSeed = Random.Range(10000f, 1000000f);
 
 
         Vector3 playerPosition = _player.transform.position;
