@@ -34,12 +34,12 @@ public class CameraController : MonoBehaviour {
         float mouseWheelAxis = Input.GetAxisRaw("Mouse ScrollWheel") / 100;
         float currSize = GetComponent<Camera>().orthographicSize;
 
-        if(mouseWheelAxis < 0 && currSize > 50)
-        {
-            GetComponent<Camera>().orthographicSize -= 20;
-        } else if (mouseWheelAxis > 0 && currSize < 250)
+        if(mouseWheelAxis < 0 && currSize < 250)
         {
             GetComponent<Camera>().orthographicSize += 20;
+        } else if (mouseWheelAxis > 0 && currSize > 50)
+        {
+            GetComponent<Camera>().orthographicSize -= 20;
         }
     }
 }
