@@ -7,13 +7,11 @@ public class InputManager : MonoBehaviour {
 
     private UIController _uiController;
     private PlayerController _player;
-    private KeyBindings _keyBindings;
 
     // Use this for initialization
     void Start() {
         _uiController = GetComponent<UIController>();
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        _keyBindings = GameObject.FindGameObjectWithTag("GlobalGameSettings").GetComponent<KeyBindings>();
     }
 
     // Update is called once per frame
@@ -41,12 +39,12 @@ public class InputManager : MonoBehaviour {
     {
         if (!_uiController.InventoryState())
         {
-            if (Input.GetKeyDown(_keyBindings.GetKeyCodeFromName("OpenInv")))
+            if (Input.GetButton("Inventory"))
             {
                 _uiController.ShowInventory();
                 _uiController.ShowCraftingPanel();
                 _player.DisableControls();
-            } else if(Input.GetKeyDown(_keyBindings.GetKeyCodeFromName("OpenRes")))
+            } else if(Input.GetButton("Research"))
             {
                 _uiController.ShowInventory();
                 _uiController.ShowResearchPanel();

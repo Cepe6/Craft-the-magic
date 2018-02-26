@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour {
     private GameObject _player;
@@ -31,15 +32,19 @@ public class CameraController : MonoBehaviour {
 
     private void Update()
     {
-        float mouseWheelAxis = Input.GetAxisRaw("Mouse ScrollWheel") / 100;
-        float currSize = GetComponent<Camera>().orthographicSize;
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            float mouseWheelAxis = Input.GetAxisRaw("Mouse ScrollWheel") / 100;
+            float currSize = GetComponent<Camera>().orthographicSize;
 
-        if(mouseWheelAxis < 0 && currSize < 250)
-        {
-            GetComponent<Camera>().orthographicSize += 20;
-        } else if (mouseWheelAxis > 0 && currSize > 50)
-        {
-            GetComponent<Camera>().orthographicSize -= 20;
+            if (mouseWheelAxis < 0 && currSize < 250)
+            {
+                GetComponent<Camera>().orthographicSize += 20;
+            }
+            else if (mouseWheelAxis > 0 && currSize > 50)
+            {
+                GetComponent<Camera>().orthographicSize -= 20;
+            }
         }
     }
 }
