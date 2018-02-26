@@ -71,6 +71,7 @@ public class ExtractorController : FuelBurnerMachine {
 
             if (!output && _slotsDictionary["OutputSlot"].currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
+                Debug.Log("HERE");
                 _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
                 if (_slotsDictionary["OutputSlot"].item == null)
                 {

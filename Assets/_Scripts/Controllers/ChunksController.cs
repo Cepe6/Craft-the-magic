@@ -17,11 +17,15 @@ public class ChunksController : MonoBehaviour {
     GameObject chunkWrapper;
     
     public static bool _changed = false;
-    
+
+    private int _randomSeed;
+
     // Use this for initialization
     void Start()
     {
         chunkWrapper = new GameObject("Chunk wrapper");
+        _randomSeed = (int)Random.Range(10000f, 1000000f);
+
 
         Vector3 playerPosition = _player.transform.position;
         Vector2 coordinates = new Vector2((int)Mathf.Floor(playerPosition.x / _chunkSize) - playerPosition.x < 0 ? 1 : 0, (int)Mathf.Floor(playerPosition.z / _chunkSize) - playerPosition.z < 0 ? 1 : 0);
@@ -45,7 +49,7 @@ public class ChunksController : MonoBehaviour {
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
         instance.name = "Chunk " + coordinates;
         instance.transform.parent = chunkWrapper.transform;
-        instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y));
+        instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y), _randomSeed);
         _generatedChunks.Add(instance);
     }
 

@@ -40,9 +40,10 @@ public class Chunk : MonoBehaviour {
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
     }
 
-    public void InitializeChunk(Vector2 coordinates)
+    public void InitializeChunk(Vector2 coordinates, int seed)
     {
         _chunkCoordinates = coordinates;
+        _seed = seed;
         GenerateChunk();
     }
 
@@ -55,10 +56,10 @@ public class Chunk : MonoBehaviour {
     private void InitializeDataMap()
     {
         //Initialize different tile types maps
-        TilesEnum[,] _biomesMap = PerlinNoiseGenerator.GenerateBiomesMap(_chunkCoordinates);
-        TilesEnum[,] _waterMap = PerlinNoiseGenerator.GenerateWaterMap(_chunkCoordinates);
-        bool[,] _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates);
-        bool[,] _coalMap = PerlinNoiseGenerator.GenerateCoalMap(_chunkCoordinates);
+        TilesEnum[,] _biomesMap = PerlinNoiseGenerator.GenerateBiomesMap(_chunkCoordinates + new Vector2(_seed, _seed));
+        TilesEnum[,] _waterMap = PerlinNoiseGenerator.GenerateWaterMap(_chunkCoordinates + new Vector2(_seed, _seed));
+        bool[,] _ironOreMap = PerlinNoiseGenerator.GenerateIronOreMap(_chunkCoordinates + new Vector2(_seed, _seed));
+        bool[,] _coalMap = PerlinNoiseGenerator.GenerateCoalMap(_chunkCoordinates + new Vector2(_seed, _seed));
       
         for (int x = 0; x < 64; x++)
         {
