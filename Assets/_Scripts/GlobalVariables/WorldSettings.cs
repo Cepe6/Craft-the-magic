@@ -10,7 +10,7 @@ public static class WorldSettings{
     public static int INCREASE_RESOURCE_CAPACITY = 0;
 
     public static int IRON_ORE_FREQUENCY = 0;
-    public static int IRON_ORE_SIZE = 2;
+    public static int IRON_ORE_SIZE = 0;
 
     public static int COPPER_ORE_FREQUENCY = 0;
     public static int COPPER_ORE_SIZE = 0;

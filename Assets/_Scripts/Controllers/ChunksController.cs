@@ -24,7 +24,7 @@ public class ChunksController : MonoBehaviour {
     void Start()
     {
         chunkWrapper = new GameObject("Chunk wrapper");
-        _randomSeed = Random.Range(10000f, 1000000f);
+        _randomSeed = Random.Range(1000f, 10000f);
 
 
         Vector3 playerPosition = _player.transform.position;
