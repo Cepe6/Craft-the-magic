@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour {
 
     private void Update()
     {
-        if(Input.GetKey(KeyCode.F))
+        if(Input.GetAxis("PickItem") != 0)
         {
             PickDrops();
         }
