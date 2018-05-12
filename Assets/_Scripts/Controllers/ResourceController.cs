@@ -69,6 +69,7 @@ public class ResourceController : MonoBehaviour {
         if(_actionSlider.GetComponent<Canvas> ().isActiveAndEnabled)
         {
             _actionSlider.GetComponent<Canvas>().enabled = false;
+            _player.StopDigging();
         }
     }
 
@@ -88,6 +89,7 @@ public class ResourceController : MonoBehaviour {
             if (_actionSlider.GetComponent<Canvas> ().isActiveAndEnabled)
             {
                 _actionSlider.GetComponent<Canvas>().enabled = false;
+                _player.StopDigging();
             }
         }
     }
@@ -99,6 +101,7 @@ public class ResourceController : MonoBehaviour {
             _currentlyMining = true;
             _actionSlider.GetComponent<Canvas>().enabled = true;
             _player.DisableControls();
+            _player.Dig();
         }
         else
         {
@@ -110,13 +113,16 @@ public class ResourceController : MonoBehaviour {
                 _currentlyMining = false;
                 _actionSlider.GetComponent<Canvas>().enabled = false;
                 _player.EnableControls();
+                _player.StopDigging();
             }
             else
             {
                 if (!_actionSlider.GetComponent<Canvas>().isActiveAndEnabled)
                 {
                     _actionSlider.GetComponent<Canvas>().enabled = true;
+                    _player.Dig();
                 }
+
                 _actionSlider.value = Mathf.Lerp(0f, 1f, _currentMineSessionTime / GlobalVariables.MINE_TIME);
 
                 _currentMineSessionTime += Time.deltaTime;

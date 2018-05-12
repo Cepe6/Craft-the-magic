@@ -13,12 +13,14 @@ public class PlayerController : MonoBehaviour {
     private Quaternion _lastRotation = new Quaternion(0f, 0f, 0f, 0f);
 
     private List<GameObject> _currentCollidingDrops = new List<GameObject>();
+    private Animator _animator;
 
     private bool _controlsEnabled = true;
 
     // Use this for initialization
     void Start()
     {
+        _animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
     }
@@ -45,6 +47,11 @@ public class PlayerController : MonoBehaviour {
         Vector3 movementDir = Vector3.zero;
         if ((horizontalAxis != 0f || verticalAxis != 0f) && _controlsEnabled)
         {
+            if(!_animator.GetBool("isRunning"))
+            {
+                _animator.SetBool("isRunning", true);
+            }
+
             movementDir = new Vector3(Mathf.Ceil(horizontalAxis), 0f, Mathf.Ceil(verticalAxis));
             transform.rotation = Quaternion.LookRotation(movementDir);
             movementDir.x *= _chunksController.IsWalkable(transform.position.x + movementDir.x * 2, transform.position.z);
@@ -53,6 +60,10 @@ public class PlayerController : MonoBehaviour {
             _rigidbody.velocity = movementDir * _movementSpeed;
         } else
         {
+            if(_animator.GetBool("isRunning"))
+            {
+                _animator.SetBool("isRunning", false);
+            }
             _rigidbody.velocity = Vector3.zero;
         } 
     }
@@ -93,6 +104,22 @@ public class PlayerController : MonoBehaviour {
     public bool GetControlsEnabled()
     {
         return _controlsEnabled;
+    }
+
+    public void Dig()
+    {
+        if (!_animator.GetBool("isDigging"))
+        {
+            _animator.SetBool("isDigging", true);
+        }
+    }
+
+    public void StopDigging()
+    {
+        if (_animator.GetBool("isDigging"))
+        {
+            _animator.SetBool("isDigging", false);
+        }
     }
 }
 

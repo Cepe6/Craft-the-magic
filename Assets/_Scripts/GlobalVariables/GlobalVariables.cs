@@ -21,11 +21,11 @@ public static class GlobalVariables {
     public const int DROP_SIZE = 6;
 
     //Resource gathering
-    public const float MINE_TIME = 1f;
+    public const float MINE_TIME = 2f;
     public const float EXTRACTOR_MINE_TIME = 1f;
 
     //Player interact distance
-    public const float INTERACT_DISTANCE = 30f;
+    public const float INTERACT_DISTANCE = 20f;
 
     //Fuel ammount
     public const float COAL_FUEL_AMMOUNT = 4f;
