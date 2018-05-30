@@ -23,7 +23,7 @@ public class InputManager : MonoBehaviour {
 
     private void ReadCancel()
     {
-        if (Input.GetButton("Cancel"))
+        if (Input.GetButtonDown("Cancel"))
         {
             if (_uiController.InventoryState())
             {
@@ -31,13 +31,24 @@ public class InputManager : MonoBehaviour {
                 _uiController.CloseCraftingPanel();
                 _uiController.CloseResearchPanel();
                 _player.EnableControls();
+            } else
+            {
+                if(_uiController.MenuPanelState())
+                {
+                    _uiController.CloseMenuPanel();
+                    _player.EnableControls();
+                } else
+                {
+                    _uiController.ShowMenuPanel();
+                    _player.DisableControls();
+                }
             }
         }
     }
 
     private void ReadInventory()
     {
-        if (!_uiController.InventoryState())
+        if (!_uiController.InventoryState() && !_uiController.MenuPanelState())
         {
             if (Input.GetButton("Inventory"))
             {

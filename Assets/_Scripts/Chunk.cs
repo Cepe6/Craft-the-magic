@@ -84,6 +84,8 @@ public class Chunk : MonoBehaviour {
                 }
             }
         }
+
+        MapController.Instance.AddChunk(_chunkCoordinates.x, _chunkCoordinates.y, _tilesDataMap);
     }
 
     private GameObject NewResource(TilesEnum type, int x, int y)

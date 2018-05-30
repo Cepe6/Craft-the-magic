@@ -11,10 +11,25 @@ public class UIController : MonoBehaviour {
     private GameObject _craftingPanel;
     [SerializeField]
     private GameObject _researchPanel;
+    [SerializeField]
+    private GameObject _menuPanel;
 
     [SerializeField]
     private HotBarController _hotBarController;
-    
+
+    [SerializeField]
+    private Button _backToMenuBtn;
+    [SerializeField]
+    private Button _exitGameBtn;
+
+    private void Start()
+    {
+        //SceneController sceneController = GameObject.FindGameObjectWithTag("SceneController").GetComponent<SceneController>();
+
+        //_backToMenuBtn.onClick.AddListener(sceneController.OnBackToMenu);
+        //_exitGameBtn.onClick.AddListener(sceneController.OnExit);
+    }
+
     public void ShowInventory()
     {
         _inventoryPanel.GetComponent<Canvas> ().enabled = true;
@@ -23,6 +38,21 @@ public class UIController : MonoBehaviour {
     public void CloseInventory()
     {
         _inventoryPanel.GetComponent<Canvas> ().enabled = false;
+    }
+
+    public void ShowMenuPanel()
+    {
+        _menuPanel.SetActive(true);
+    }
+
+    public void CloseMenuPanel()
+    {
+        _menuPanel.SetActive(false);
+    }
+
+    public bool MenuPanelState()
+    {
+        return _menuPanel.activeSelf;
     }
 
     public bool InventoryState()

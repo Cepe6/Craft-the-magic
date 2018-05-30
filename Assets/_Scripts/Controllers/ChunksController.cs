@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChunksController : MonoBehaviour {
     [SerializeField]
@@ -10,6 +11,9 @@ public class ChunksController : MonoBehaviour {
     [SerializeField]
     private int _fieldOfView = 3;
 
+    [SerializeField]
+    private Text _seedText;
+
     private int _chunkSize = GlobalVariables.TILE_PER_CHUNK_AXIS * GlobalVariables.TILE_SIZE;
 
     List<GameObject> _generatedChunks = new List<GameObject>();
@@ -18,13 +22,24 @@ public class ChunksController : MonoBehaviour {
     
     public static bool _changed = false;
 
-    private float _randomSeed;
+    private int _seed;
 
     // Use this for initialization
     void Start()
     {
         chunkWrapper = new GameObject("Chunk wrapper");
-        _randomSeed = Random.Range(1000f, 10000f);
+       // int seed = GameSettings.Instance().GetSeed();
+        int seed = 0;
+
+        if (seed == 0)
+        {
+            _seed = Mathf.CeilToInt(Random.Range(1000f, 99999f));
+            _seedText.text = "Seed: " + _seed;
+        } else
+        {
+            _seed = seed + 1000;
+            _seedText.text = "Seed: " + (_seed - 1000);
+        }
 
 
         Vector3 playerPosition = _player.transform.position;
@@ -49,7 +64,7 @@ public class ChunksController : MonoBehaviour {
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
         instance.name = "Chunk " + coordinates;
         instance.transform.parent = chunkWrapper.transform;
-        instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y), _randomSeed);
+        instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y), _seed);
         _generatedChunks.Add(instance);
     }
 
