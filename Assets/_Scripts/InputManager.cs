@@ -31,9 +31,13 @@ public class InputManager : MonoBehaviour {
                 _uiController.CloseCraftingPanel();
                 _uiController.CloseResearchPanel();
                 _player.EnableControls();
-            } else
+            } else if (_uiController.MapPanelState()) {
+                _uiController.CloseMapPanel();
+                _player.EnableControls();
+            }
+            else
             {
-                if(_uiController.MenuPanelState())
+                if (_uiController.MenuPanelState())
                 {
                     _uiController.CloseMenuPanel();
                     _player.EnableControls();
@@ -48,7 +52,7 @@ public class InputManager : MonoBehaviour {
 
     private void ReadInventory()
     {
-        if (!_uiController.InventoryState() && !_uiController.MenuPanelState())
+        if (!_uiController.InventoryState() && !_uiController.MenuPanelState() && !_uiController.MapPanelState())
         {
             if (Input.GetButton("Inventory"))
             {
@@ -59,6 +63,10 @@ public class InputManager : MonoBehaviour {
             {
                 _uiController.ShowInventory();
                 _uiController.ShowResearchPanel();
+                _player.DisableControls();
+            } else if(Input.GetButton("Map"))
+            {
+                _uiController.ShowMapPanel();
                 _player.DisableControls();
             }
 

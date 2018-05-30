@@ -35,8 +35,6 @@ public class GameSettings : MonoBehaviour {
         {
             _seed = 0;
         }
-
-        Debug.Log("Seed: " + _seed);
     }
 
     public int GetSeed()

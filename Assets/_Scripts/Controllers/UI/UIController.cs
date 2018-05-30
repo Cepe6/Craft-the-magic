@@ -13,6 +13,8 @@ public class UIController : MonoBehaviour {
     private GameObject _researchPanel;
     [SerializeField]
     private GameObject _menuPanel;
+    [SerializeField]
+    private GameObject _mapPanel;
 
     [SerializeField]
     private HotBarController _hotBarController;
@@ -53,6 +55,21 @@ public class UIController : MonoBehaviour {
     public bool MenuPanelState()
     {
         return _menuPanel.activeSelf;
+    }
+
+    public void ShowMapPanel()
+    {
+        _mapPanel.GetComponent <Canvas>().enabled = true;
+    }
+
+    public void CloseMapPanel()
+    {
+        _mapPanel.GetComponent <Canvas>().enabled = false;
+    }
+
+    public bool MapPanelState()
+    {
+        return _mapPanel.GetComponent <Canvas>().isActiveAndEnabled;
     }
 
     public bool InventoryState()

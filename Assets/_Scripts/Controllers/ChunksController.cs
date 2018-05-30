@@ -28,8 +28,7 @@ public class ChunksController : MonoBehaviour {
     void Start()
     {
         chunkWrapper = new GameObject("Chunk wrapper");
-       // int seed = GameSettings.Instance().GetSeed();
-        int seed = 0;
+        int seed = GameSettings.Instance().GetSeed();
 
         if (seed == 0)
         {
