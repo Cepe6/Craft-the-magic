@@ -29,7 +29,7 @@ public class ChunksController : MonoBehaviour {
     {
         chunkWrapper = new GameObject("Chunk wrapper");
         int seed = GameSettings.Instance().GetSeed();
-
+        //int seed = 0;
         if (seed == 0)
         {
             _seed = Mathf.CeilToInt(Random.Range(1000f, 99999f));

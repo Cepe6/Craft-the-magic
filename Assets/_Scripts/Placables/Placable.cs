@@ -40,16 +40,16 @@ public class Placable : MonoBehaviour {
         _collider.isTrigger = true;
 
         _model = transform.Find("Model").gameObject;
-        _model.transform.localPosition = new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
+        //_model.transform.localPosition = new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
         _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().material, _placableIndicatorsMaterial };
 
         _tilesUnder = new TileData[sizeX, sizeY];
         _placableIndicators = new GameObject[sizeX, sizeY];
         int i = 0;
-        for (int x = 0; x <= sizeX && i < sizeX; x++, i++)
+        for (int x = - sizeX / 2; x <= sizeX / 2 && i < sizeX; x++, i++)
         {
             int j = 0;
-            for(int y = 0; y <= sizeY && j < sizeY; y++, j++)
+            for(int y = - sizeY / 2 ; y <= sizeY / 2 && j < sizeY; y++, j++)
             {
                 _placableIndicators[i, j] = GameObject.CreatePrimitive(PrimitiveType.Quad);
                 _placableIndicators[i, j].transform.SetParent(gameObject.transform);
@@ -72,8 +72,14 @@ public class Placable : MonoBehaviour {
             ShowGO();
         }
 
-        Vector3 mousePoisition = Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX - 1) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY - 1) / 2);
-        transform.position = new Vector3(ClosestTen(mousePoisition.x), 0.1f, ClosestTen(mousePoisition.z));
+        if(Input.GetButtonDown("Rotate"))
+        {
+            RotateGO();
+        }
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // - new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
+        transform.position = new Vector3(ClosestTen(mousePosition.x), 0.1f, ClosestTen(mousePosition.z));
+
 
         UpdateIndicators();
     }
@@ -138,8 +144,7 @@ public class Placable : MonoBehaviour {
 
     private int ClosestTen(float number)
     {
-        int result = (int)number / 10;
-        return result * 10;
+        return (int)(Mathf.Round(number / 10.0f) * 10);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -190,5 +195,10 @@ public class Placable : MonoBehaviour {
         {
             renderer.enabled = true;
         }
+    }
+
+    private void RotateGO()
+    {
+        transform.Rotate(0f, 90f, 0f);
     }
 }
