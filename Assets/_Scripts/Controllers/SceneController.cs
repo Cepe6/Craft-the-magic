@@ -4,10 +4,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour {
+    private static SceneController _instance;
 
     private void Awake()
     {
-        DontDestroyOnLoad(this.gameObject);
+        if(_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        } else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     public void OnNewGame()
