@@ -151,10 +151,10 @@ public class Chunk : MonoBehaviour {
                 float xUnit = idToSpriteSheetSize - (int)idToSpriteSheetSize;
                 float yUnit = (int)idToSpriteSheetSize * unit;
 
-                uv.Add(new Vector2(xUnit, yUnit));
-                uv.Add(new Vector2(xUnit + unit, yUnit));
-                uv.Add(new Vector2(xUnit + unit, yUnit + unit));
-                uv.Add(new Vector2(xUnit, yUnit + unit));
+                uv.Add(new Vector2(xUnit + 0.01f, yUnit + 0.01f));
+                uv.Add(new Vector2(xUnit + unit - 0.01f, yUnit + 0.01f));
+                uv.Add(new Vector2(xUnit + unit - 0.01f, yUnit + unit - 0.01f));
+                uv.Add(new Vector2(xUnit + 0.01f, yUnit + unit - 0.01f));
 
                 blockCount++;
             }
