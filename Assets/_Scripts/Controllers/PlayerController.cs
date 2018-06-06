@@ -47,6 +47,8 @@ public class PlayerController : MonoBehaviour {
         Vector3 movementDir = Vector3.zero;
         if ((horizontalAxis != 0f || verticalAxis != 0f) && _controlsEnabled)
         {
+            bool movingDiagonally = horizontalAxis * verticalAxis != 0;
+
             if(!_animator.GetBool("isRunning"))
             {
                 _animator.SetBool("isRunning", true);
@@ -56,8 +58,8 @@ public class PlayerController : MonoBehaviour {
             transform.rotation = Quaternion.LookRotation(movementDir);
             movementDir.x *= _chunksController.IsWalkable(transform.position.x + movementDir.x * 2, transform.position.z);
             movementDir.z *= _chunksController.IsWalkable(transform.position.x, transform.position.z + movementDir.z * 2);
-
-            _rigidbody.velocity = movementDir * _movementSpeed;
+            
+            _rigidbody.velocity = movementDir * _movementSpeed / (movingDiagonally ? Mathf.Sqrt(2f) : 1);
         } else
         {
             if(_animator.GetBool("isRunning"))
