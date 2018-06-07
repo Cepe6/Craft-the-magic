@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-[CustomEditor(typeof(StaticInventory), true)]
+//[CustomEditor(typeof(StaticInventory), true)]
 public class InventoryEditor : Editor {
     InventoryAbstract _script;
     private List<bool> foldouts = new List<bool>();
@@ -13,59 +13,67 @@ public class InventoryEditor : Editor {
 
     private void Awake()
     {
-        _script = (InventoryAbstract)target;
-        slotsProp = serializedObject.FindProperty("_slots");
-
-        serializedObject.Update();
-        for (int i = 0; i < _script.SlotsCount(); i++)
+        if(!GameSettings.Instance().IsSaved())
         {
-            if (slotsSerialized.Count == i)
+            _script = (InventoryAbstract)target;
+            slotsProp = serializedObject.FindProperty("_slots");
+
+            serializedObject.Update();
+            for (int i = 0; i < _script.SlotsCount(); i++)
             {
-                foldouts.Add(false);
-                try
+                if (slotsSerialized.Count == i)
                 {
-                    slotsProp.InsertArrayElementAtIndex(i);
-                    slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = _script.transform.GetComponentsInChildren<Slot>()[i];
-                    slotsSerialized.Add(new SerializedObject(slotsProp.GetArrayElementAtIndex(i).objectReferenceValue));
+                    foldouts.Add(false);
+                    try
+                    {
+                        slotsProp.InsertArrayElementAtIndex(i);
+                        slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = _script.transform.GetComponentsInChildren<Slot>()[i];
+                        slotsSerialized.Add(new SerializedObject(slotsProp.GetArrayElementAtIndex(i).objectReferenceValue));
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        throw new Exception("Not enough slots in current parent. Present: " + i + ", Needed: " + _script.SlotsCount());
+                    }
                 }
-                catch (IndexOutOfRangeException)
-                {
-                    throw new Exception("Not enough slots in current parent. Present: " + i + ", Needed: " + _script.SlotsCount());
-                }
+                serializedObject.ApplyModifiedProperties();
             }
-            serializedObject.ApplyModifiedProperties();
-        }
+        } 
+        
     }
 
     public override void OnInspectorGUI()
     {
-        serializedObject.Update();
-        for (int i = 0; i < _script.SlotsCount(); i++)
+        if(!GameSettings.Instance().IsSaved())
         {
-            slotsSerialized[i].Update();
-            string labelText = slotsSerialized[i].FindProperty("_item").objectReferenceValue != null ?
-                ("Slot " 
-                + i 
-                + " - Current(Item: " 
-                + new SerializedObject(slotsSerialized[i].FindProperty("_item").objectReferenceValue).FindProperty("_type").enumNames[new SerializedObject(slotsSerialized[i].FindProperty("_item").objectReferenceValue).FindProperty("_type").enumValueIndex] 
-                + ", Ammount: " 
-                + slotsSerialized[i].FindProperty("_ammount").intValue
-                + ")")
-                : "Slot " + i;
-            foldouts[i] = EditorGUILayout.Foldout(foldouts[i], labelText);
-            if (foldouts[i])
+            serializedObject.Update();
+            for (int i = 0; i < _script.SlotsCount(); i++)
             {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(slotsSerialized[i].FindProperty("_item"), true);
-                EditorGUILayout.PropertyField(slotsSerialized[i].FindProperty("_ammount"), true);
-                EditorGUI.indentLevel--;
+                slotsSerialized[i].Update();
+                string labelText = slotsSerialized[i].FindProperty("_item").objectReferenceValue != null ?
+                    ("Slot "
+                    + i
+                    + " - Current(Item: "
+                    + new SerializedObject(slotsSerialized[i].FindProperty("_item").objectReferenceValue).FindProperty("_type").enumNames[new SerializedObject(slotsSerialized[i].FindProperty("_item").objectReferenceValue).FindProperty("_type").enumValueIndex]
+                    + ", Ammount: "
+                    + slotsSerialized[i].FindProperty("_ammount").intValue
+                    + ")")
+                    : "Slot " + i;
+                foldouts[i] = EditorGUILayout.Foldout(foldouts[i], labelText);
+                if (foldouts[i])
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(slotsSerialized[i].FindProperty("_item"), true);
+                    EditorGUILayout.PropertyField(slotsSerialized[i].FindProperty("_ammount"), true);
+                    EditorGUI.indentLevel--;
+                }
+                slotsSerialized[i].ApplyModifiedProperties();
+
+                EditorUtility.SetDirty(slotsSerialized[i].targetObject);
             }
-            slotsSerialized[i].ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
 
-            EditorUtility.SetDirty(slotsSerialized[i].targetObject);
+            EditorUtility.SetDirty(target);
         }
-        serializedObject.ApplyModifiedProperties();
-
-        EditorUtility.SetDirty(target);
+        
     }
 }

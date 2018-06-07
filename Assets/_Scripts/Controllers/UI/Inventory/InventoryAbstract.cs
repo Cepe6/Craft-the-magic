@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
-[ExecuteInEditMode]
+//[ExecuteInEditMode]
 public abstract class InventoryAbstract : MonoBehaviour
 {
     protected int _slotsCount;
@@ -12,6 +13,26 @@ public abstract class InventoryAbstract : MonoBehaviour
     private void Awake()
     {
         _slots = new Slot[_slotsCount];
+
+    }
+
+    private void Start()
+    {
+        GameSaver.GameInfo.savedInventories.Add(name);
+
+        if(GameSettings.Instance().IsSaved())
+        {
+            int inventoryIndex = GameSettings.Instance().GetSavedInventories().IndexOf(name);
+            if(inventoryIndex != -1)
+                foreach(string slot in GameSettings.Instance().GetSavedInventoryItems().ElementAt(inventoryIndex).list)
+                {
+                    int slotIndex = int.Parse(slot.Split(',')[0]);
+                    string itemName = slot.Split(',')[1];
+                    int ammount = int.Parse(slot.Split(',')[2]);
+
+                    _slots[slotIndex].InitItem(Resources.Load<Item>("ScriptableObjects/" + itemName), ammount);
+                }
+        }
     }
 
     public Slot[] GetSlots()

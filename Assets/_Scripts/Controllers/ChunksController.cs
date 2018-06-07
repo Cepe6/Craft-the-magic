@@ -14,6 +14,13 @@ public class ChunksController : MonoBehaviour {
     [SerializeField]
     private Text _seedText;
 
+    [SerializeField]
+    private GameObject _extractorPrefab;
+    [SerializeField]
+    private GameObject _smelterPrefab;
+    [SerializeField]
+    private GameObject _storageContainerPrefab;
+
     private int _chunkSize = GlobalVariables.TILE_PER_CHUNK_AXIS * GlobalVariables.TILE_SIZE;
 
     List<GameObject> _generatedChunks = new List<GameObject>();
@@ -33,17 +40,54 @@ public class ChunksController : MonoBehaviour {
         if (seed == 0)
         {
             _seed = Mathf.CeilToInt(Random.Range(1000f, 99999f));
-            _seedText.text = "Seed: " + _seed;
+            GameSaver.GameInfo.seed = _seed;
+            _seedText.text = "Seed: " + _seed;  
         } else
         {
-            _seed = seed + 1000;
-            _seedText.text = "Seed: " + (_seed - 1000);
+            _seed = seed;
+            GameSaver.GameInfo.seed = _seed;
+            _seedText.text = "Seed: " + (_seed);
         }
 
 
+
         Vector3 playerPosition = _player.transform.position;
+        if (GameSettings.Instance().IsSaved())
+        {
+            foreach(string coords in GameSettings.Instance().GetProtectedChunks())
+            {
+                InstantiateChunkAt(new Vector2(float.Parse(coords.Split(',')[0]), float.Parse(coords.Split(',')[1]))).GetComponent<Chunk> ().Protect();
+            }
+
+            playerPosition = GameSettings.Instance().GetPlayerCoords();
+        }
         Vector2 coordinates = new Vector2((int)Mathf.Floor(playerPosition.x / _chunkSize) - playerPosition.x < 0 ? 1 : 0, (int)Mathf.Floor(playerPosition.z / _chunkSize) - playerPosition.z < 0 ? 1 : 0);
         GenerateChunksAround(coordinates);
+
+
+        if(GameSettings.Instance().IsSaved())
+        {
+            LoadMachines();
+        }
+    }
+
+    public void LoadMachines()
+    {
+        foreach(string machine in GameSettings.Instance().GetPlacedMachines())
+        {
+            Vector3 coordinates = new Vector3(float.Parse(machine.Split(',')[1]), 0.1f, float.Parse(machine.Split(',')[2]));
+
+            if(machine.Contains("ResourceExtractor"))
+            {
+                Instantiate(_extractorPrefab, coordinates, Quaternion.Euler(new Vector3(0f, float.Parse(machine.Split(',')[3]), 0f))).GetComponent<Placable>().Place();
+            } else if(machine.Contains("Smelter"))
+            {
+                Instantiate(_smelterPrefab, coordinates, Quaternion.Euler(new Vector3(0f, float.Parse(machine.Split(',')[3]), 0f))).GetComponent<Placable>().Place();
+            } else if(machine.Contains("StorageContainer"))
+            { 
+                Instantiate(_storageContainerPrefab, coordinates, Quaternion.Euler(new Vector3(0f, float.Parse(machine.Split(',')[3]), 0f))).GetComponent<Placable>().Place();
+            }
+        }
     }
 
     //Generate the chunks around the player
@@ -79,7 +123,7 @@ public class ChunksController : MonoBehaviour {
     }
 
     //Generate the chunk and initialize its mesh
-    private void InstantiateChunkAt(Vector2 coordinates)
+    private GameObject InstantiateChunkAt(Vector2 coordinates)
     {
         GameObject instance = Instantiate(_chunkPrefab);
         instance.transform.position = new Vector3(coordinates.x * _chunkSize, 0f, coordinates.y * _chunkSize);
@@ -87,6 +131,8 @@ public class ChunksController : MonoBehaviour {
         instance.transform.parent = chunkWrapper.transform;
         instance.GetComponent<Chunk>().InitializeChunk(new Vector2(coordinates.x, coordinates.y), _seed);
         _generatedChunks.Add(instance);
+
+        return instance;
     }
 
     //Get list of not generated chunks around the coordinates point with range _fieldOfView

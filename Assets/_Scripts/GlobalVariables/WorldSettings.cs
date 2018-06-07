@@ -16,5 +16,5 @@ public static class WorldSettings{
     public static int COPPER_ORE_SIZE = 0;
 
     public static int COAL_FREQUENCY = 0;
-    public static int COAL_SIZE = 0;
+    public static int COAL_SIZE = -1;
 }

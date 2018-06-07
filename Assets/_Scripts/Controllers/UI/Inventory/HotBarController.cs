@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class HotBarController : StaticInventory {
     //Singleton
@@ -35,6 +36,16 @@ public class HotBarController : StaticInventory {
         {
             GlobalVariables.CURRENT_PLACABLE = Instantiate(_slots[_lastPos].item.placableGO);
         }
+        List<string> items = new List<string>();
+        for (int i = 0; i < _slotsCount; i++)
+        {
+            if (_slots[i].item != null)
+            {
+                string item = i + "," + _slots[i].item.name + "," + _slots[i].currentAmmount;
+                items.Add(item);
+            }
+        }
+        GameSaver.GameInfo.ChangeInventoryItems(name, items);
     }
 
     public Slot GetCurrentSlot()

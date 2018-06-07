@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Chunk : MonoBehaviour {
     //The material of the terrain containing the textures of the tiles
@@ -23,6 +24,8 @@ public class Chunk : MonoBehaviour {
     //The layer maps of the chunk
     TileData[,] _tilesDataMap = new TileData[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
     bool[,] _notWalkableMap = new bool[GlobalVariables.TILE_PER_CHUNK_AXIS, GlobalVariables.TILE_PER_CHUNK_AXIS];
+
+    List<ResourceController> _generatedResources = new List<ResourceController>();
     
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
@@ -53,6 +56,30 @@ public class Chunk : MonoBehaviour {
     {
         InitializeDataMap();
         GenerateTexture();
+
+        int chunkIndex;
+        if(GameSettings.Instance().IsSaved() && (chunkIndex = GameSettings.Instance().GetProtectedChunks().IndexOf(_chunkCoordinates.x + "," + _chunkCoordinates.y)) != -1)
+        {
+            UpdateResources(chunkIndex);
+        }
+    }
+
+    private void UpdateResources(int chunkIndex)
+    {
+        if(GameSettings.Instance().GetChangedResourcesCoords().ElementAtOrDefault(chunkIndex) != null)
+        {
+            foreach(string resource in GameSettings.Instance().GetChangedResourcesCoords().ElementAt(chunkIndex).list)
+            {
+                int resourceIndex = GameSettings.Instance().GetChangedResourcesCoords().ElementAt(chunkIndex).list.IndexOf(resource);
+                 _generatedResources.Where(resourceController => resourceController.GetLocalCoordinates() == new Vector2(float.Parse(resource.Split(',')[0]), float.Parse(resource.Split(',')[1])))
+                    .SingleOrDefault()
+                    .ammount = GameSettings.Instance().GetChangedResourcesAmmount().ElementAt(chunkIndex).list.ElementAt(resourceIndex);
+
+                _generatedResources.Where(resourceController => resourceController.GetLocalCoordinates() == new Vector2(float.Parse(resource.Split(',')[0]), float.Parse(resource.Split(',')[1])))
+                    .SingleOrDefault()
+                    .SetPreviouslyChanged();
+            }
+        }
     }
 
     private void InitializeDataMap()
@@ -110,6 +137,11 @@ public class Chunk : MonoBehaviour {
         {
             instance.transform.SetParent(transform.Find("Resources"));
         }
+
+        _generatedResources.Add(instance.GetComponent<ResourceController>());
+        instance.GetComponent<ResourceController>().SetChunkCoordinates(_chunkCoordinates);
+        instance.GetComponent<ResourceController>().SetLocalCoordinates(new Vector2(x, y));
+        instance.name = type + ": " + new Vector2(x, y);
         return instance;
     }
 
@@ -204,8 +236,11 @@ public class Chunk : MonoBehaviour {
 
     public void Protect()
     {
-        Debug.Log("Chunk protected");
-        _protected = true;
+        if (!_protected)
+        {
+            _protected = true;
+            GameSaver.GameInfo.savedChunksCoords.Add(_chunkCoordinates.x + "," + _chunkCoordinates.y);
+        }
     }
 
     public bool IsProtected()

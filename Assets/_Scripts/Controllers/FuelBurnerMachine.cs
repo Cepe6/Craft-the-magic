@@ -18,6 +18,7 @@ public class FuelBurnerMachine : MachineController
     {
         _fuelBurning = true;
         _slotsDictionary["FuelSlot"].currentAmmount--;
+
         _currentFuelLeft = GlobalVariables.COAL_FUEL_AMMOUNT;
         while (_currentFuelLeft > 0)
         {

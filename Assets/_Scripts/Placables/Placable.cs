@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.EventSystems;
+using System;
 
 public class Placable : MonoBehaviour {
     [SerializeField]
@@ -14,6 +15,8 @@ public class Placable : MonoBehaviour {
     //Bool variable used to specify whether we use the tiles in the filteredTiles array as only the ones that you cannot build on or only the ones you can build ok
     [SerializeField]
     private bool _onlyThese = false;
+
+    private GameObject _player;
 
     private ChunksController _chunksController;
     private TileData[,] _tilesUnder;
@@ -27,22 +30,26 @@ public class Placable : MonoBehaviour {
 
     private BoxCollider _collider;
     private List<GameObject> _nonResourceCollidingGOs = new List<GameObject> ();
-    
 
-    private void Start()
+    private void Awake()
     {
+        _player = GameObject.FindGameObjectWithTag("Player");
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
         _placableIndicatorsMaterial = new Material(Shader.Find("Transparent/Diffuse"));
 
         _collider = gameObject.AddComponent<BoxCollider>();
         _collider.size = new Vector3((sizeX * GlobalVariables.TILE_SIZE) - 0.1f, 10f, (sizeY * GlobalVariables.TILE_SIZE) - 0.1f);
-        _collider.center = new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
+        _collider.center = new Vector3((sizeX % 2 == 0 ? 0 : GlobalVariables.TILE_SIZE / 2), 0f, (sizeY % 2 == 0 ? 0 : GlobalVariables.TILE_SIZE / 2));
         _collider.isTrigger = true;
 
         _model = transform.Find("Model").gameObject;
-        //_model.transform.localPosition = new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
+        _model.transform.localPosition = new Vector3((sizeX % 2 == 0 ? 0f : (float)GlobalVariables.TILE_SIZE * (sizeX) / 2), 0f, (sizeY % 2 == 0 ? 0f : (float)GlobalVariables.TILE_SIZE * (sizeY) / 2));
         _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().material, _placableIndicatorsMaterial };
+            
+    }
 
+    private void Start()
+    {
         _tilesUnder = new TileData[sizeX, sizeY];
         _placableIndicators = new GameObject[sizeX, sizeY];
         int i = 0;
@@ -77,50 +84,66 @@ public class Placable : MonoBehaviour {
             RotateGO();
         }
 
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // - new Vector3((float)GlobalVariables.TILE_SIZE * (sizeX) / 2, 0f, (float)GlobalVariables.TILE_SIZE * (sizeY) / 2);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector3((sizeX % 2 == 0 ? 0f : (float)GlobalVariables.TILE_SIZE * (sizeX) / 2), 0f, (sizeY % 2 == 0 ? 0f : (float)GlobalVariables.TILE_SIZE * (sizeY) / 2));
         transform.position = new Vector3(ClosestTen(mousePosition.x), 0.1f, ClosestTen(mousePosition.z));
 
 
         UpdateIndicators();
+    }
+    
+    public void Place()
+    {
+        if(_placableIndicators == null)
+        {
+            Start();
+        }
+
+        UpdateIndicators();
+
+        _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().materials[0] };
+        _collider.isTrigger = false;
+        _collider.size -= new Vector3(0f, .1f, 0f);
+
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeY; j++)
+            {
+                _tilesUnder[i, j] = _chunksController.GetTile(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
+                _chunksController.ProtectChunk(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
+                Destroy(_placableIndicators[i, j]);
+            }
+        }
+
+        foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
+        {
+            script.enabled = true;
+        }
+
+        GlobalVariables.CURRENT_PLACABLE = null;
+
+
+        if (GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
+        {
+            GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
+        }
+        else
+        {
+            try
+            {
+                HotBarController.Instance.GetCurrentSlot().currentAmmount--;
+            } catch (IndexOutOfRangeException) { }
+        }
+
+        GameSaver.GameInfo.placedMachines.Add(name + "," + transform.position.x + "," + transform.position.z + "," + transform.eulerAngles.y);
+
+        Destroy(this);
     }
 
     private void OnMouseDown()
     {
         if (_currentlyPlacable && !EventSystem.current.IsPointerOverGameObject())
         {
-            _model.GetComponent<MeshRenderer>().materials = new Material[] { _model.GetComponent<MeshRenderer>().materials[0] };
-            _collider.isTrigger = false;
-            _collider.size -= new Vector3(0f, .1f, 0f);
-
-            for (int i = 0; i < sizeX; i++)
-            {
-                for (int j = 0; j < sizeY; j++)
-                {
-                    _tilesUnder[i, j] = _chunksController.GetTile(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
-                    _chunksController.ProtectChunk(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
-                    Destroy(_placableIndicators[i, j]);
-                }
-            }
-
-            foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
-            {
-                script.enabled = true;
-            }
-
-            GlobalVariables.CURRENT_PLACABLE = null;
-
-
-            if (GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED != null)
-            {
-                GlobalVariables.ITEM_CONTAINER_BEING_DRAGGED.currentAmmount--;
-            }
-            else
-            {
-                HotBarController.Instance.GetCurrentSlot().currentAmmount--;
-            }
-            
-
-            Destroy(this);
+            Place();   
         }
     }
 
@@ -130,7 +153,7 @@ public class Placable : MonoBehaviour {
         for(int x = 0; x < sizeX; x++)
         {
             for(int y = 0; y < sizeY; y++) {
-                if((filteredTiles.Where(tile => tile.Equals(_chunksController.GetTile(_placableIndicators[x, y].transform.position.x, _placableIndicators[x, y].transform.position.z).GetTileType())).SingleOrDefault() != 0) == _onlyThese && _nonResourceCollidingGOs.Count == 0)
+                if((filteredTiles.Where(tile => tile.Equals(_chunksController.GetTile(_placableIndicators[x, y].transform.position.x, _placableIndicators[x, y].transform.position.z).GetTileType())).SingleOrDefault() != 0) == _onlyThese && _nonResourceCollidingGOs.Count == 0 && Vector3.Distance(_player.transform.position, _collider.ClosestPointOnBounds(_player.transform.position)) <= GlobalVariables.INTERACT_DISTANCE)
                 {
                     _placableIndicators[x, y].GetComponent<MeshRenderer>().material.color = _placableAllowIndicatorsColor;
                     _model.GetComponent<MeshRenderer>().materials[1].color = _placableAllowIndicatorsColor;

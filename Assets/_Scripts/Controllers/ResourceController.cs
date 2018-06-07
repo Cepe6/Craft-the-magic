@@ -10,11 +10,18 @@ public class ResourceController : MonoBehaviour {
     
     private Slider _actionSlider;
 
+    private Vector2 _chunkCoordinates;
+    private Vector2 _localCoordinates;
+
     ChunksController _chunksController;
     PlayerController _player;
     PlayerInventoryController _inventory;
     private float _currentMineSessionTime = 0f;
     private bool _currentlyMining = false;
+
+    private GameObject _oreInfoText;
+
+    private bool _previouslyChanged = false;
 
     private void Awake()
     {
@@ -22,11 +29,15 @@ public class ResourceController : MonoBehaviour {
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         _inventory = GameObject.FindGameObjectWithTag("PlayerInventory").GetComponent<PlayerInventoryController>();
         _actionSlider = GameObject.FindGameObjectWithTag("ActionSlider").GetComponent<Slider> ();
+        _oreInfoText = GameObject.FindGameObjectWithTag("OreInfo");
     }
 
     // Use this for initialization
     void Start () {
-        InitializeAmmount();
+        if(!_previouslyChanged)
+        {
+            InitializeAmmount();
+        }
 	}
 
     private void InitializeAmmount()
@@ -56,12 +67,20 @@ public class ResourceController : MonoBehaviour {
         get { return _ammount; }
         set
         {
+            GameSaver.GameInfo.ChangeResource(_chunkCoordinates, _localCoordinates, _ammount);
             _ammount = value;
         }
     }
 
+    public void SetPreviouslyChanged()
+    {
+        _previouslyChanged = true;
+    }
+
     private void OnMouseExit()
     {
+        _oreInfoText.GetComponent<Canvas> ().enabled = false;
+
         if(!_player.GetControlsEnabled())
         {
             _player.EnableControls();
@@ -76,6 +95,10 @@ public class ResourceController : MonoBehaviour {
 
     private void OnMouseOver()
     {
+        _oreInfoText.GetComponent<Canvas>().enabled = true;
+        _oreInfoText.GetComponentsInChildren<Text>()[0].text = _item.name;
+        _oreInfoText.GetComponentsInChildren<Text>()[1].text = _ammount.ToString();
+
         if (Input.GetMouseButton(1) && GetComponent<Interactable>().IsInteractable())
         {
             Mine();
@@ -114,6 +137,7 @@ public class ResourceController : MonoBehaviour {
                 _currentlyMining = false;
                 _actionSlider.GetComponent<Canvas>().enabled = false;
                 _chunksController.ProtectChunk(transform.position.x, transform.position.z);
+                GameSaver.GameInfo.ChangeResource(_chunkCoordinates, _localCoordinates, _ammount);
                 _player.EnableControls();
                 _player.StopDigging();
             }
@@ -130,5 +154,20 @@ public class ResourceController : MonoBehaviour {
                 _currentMineSessionTime += Time.deltaTime;
             }
         }
+    }
+
+    public void SetChunkCoordinates(Vector2 chunkCoords)
+    {
+        _chunkCoordinates = chunkCoords;
+    }
+
+    public void SetLocalCoordinates(Vector2 localCoords)
+    {
+        _localCoordinates = localCoords;
+    }
+
+    public Vector2 GetLocalCoordinates()
+    {
+        return _localCoordinates;
     }
 }

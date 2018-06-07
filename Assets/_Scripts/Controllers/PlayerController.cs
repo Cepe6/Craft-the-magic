@@ -20,6 +20,11 @@ public class PlayerController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+        if(GameSettings.Instance().IsSaved())
+        {
+            transform.position = GameSettings.Instance().GetPlayerCoords();
+        }
+
         _animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();

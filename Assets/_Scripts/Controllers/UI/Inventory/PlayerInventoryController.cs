@@ -30,6 +30,17 @@ public class PlayerInventoryController : StaticInventory {
         {
             SortInventory();
         }
+
+        List<string> items = new List<string>();
+        for (int i = 0; i < _slotsCount; i++)
+        {
+            if (_slots[i].item != null)
+            {
+                string item = i + "," + _slots[i].item.name + "," + _slots[i].currentAmmount;
+                items.Add(item);
+            }
+        }
+        GameSaver.GameInfo.ChangeInventoryItems(name, items);
     }
 
     public void AddOrDrop(Item item, int ammount)

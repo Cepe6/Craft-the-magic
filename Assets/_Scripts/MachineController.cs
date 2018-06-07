@@ -20,6 +20,22 @@ public class MachineController : InventoryAbstract
 
     private bool _open = false;
 
+    protected void UpdateInventoryForSave()
+    {
+        List<string> items = new List<string>();
+        foreach (KeyValuePair<string, Slot> slotEntry in _slotsDictionary)
+        {
+            string item = slotEntry.Key.ToString();
+            if(slotEntry.Value.item != null)
+            {
+                item += "," + slotEntry.Value.item.name + "," + slotEntry.Value.currentAmmount;
+                items.Add(item);
+            }
+             
+        }
+        GameSaver.GameInfo.ChangePlacedMachineInventory(name + "," + transform.position.x + "," + transform.position.z + "," + transform.eulerAngles.y, items);
+    }
+
     protected void OnEnable()
     {
         _inventory = GameObject.FindGameObjectWithTag("PlayerInventory");
@@ -43,10 +59,27 @@ public class MachineController : InventoryAbstract
 
 
         _currentInstance.SetActive(false);
+
+        if(GameSettings.Instance().IsSaved()) {
+            int machineIndex;
+            if ((machineIndex = GameSettings.Instance().GetPlacedMachines().IndexOf(name + "," + transform.position.x + "," + transform.position.z + "," + transform.eulerAngles.y)) != -1)
+            {
+                foreach(string slot in GameSettings.Instance().GetPlacedMachinesInventories().ElementAt(machineIndex).list)
+                {
+                    string slotName = slot.Split(',')[0];
+                    string itemName = slot.Split(',')[1];
+                    int ammount = int.Parse(slot.Split(',')[2]);
+               
+                    _slotsDictionary[slotName].InitItem(Resources.Load<Item>("ScriptableObjects/" + itemName), ammount);
+                }
+            }
+        }
     }
 
     protected void Update()
     {
+
+        UpdateInventoryForSave();
         if (Input.GetButton("Cancel"))  
         {
             if (_open)

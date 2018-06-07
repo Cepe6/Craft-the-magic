@@ -9,7 +9,6 @@ public class ExtractorController : FuelBurnerMachine {
     private TileData[,] _tilesUnder;
     private Vector2 _size;
 
-    
     private float _currentMineTime = 0f;
     private TileData _currentMined;
 
@@ -31,6 +30,8 @@ public class ExtractorController : FuelBurnerMachine {
 
         base.Update();
     }
+
+    
 
     private void Mine()
     {
@@ -71,7 +72,6 @@ public class ExtractorController : FuelBurnerMachine {
 
             if (!output && _slotsDictionary["OutputSlot"].currentAmmount < GlobalVariables.MAX_STACK_AMMOUNT)
             {
-                Debug.Log("HERE");
                 _currentMined.GetObjectAbove().GetComponent<ResourceController>().ammount--;
                 if (_slotsDictionary["OutputSlot"].item == null)
                 {
