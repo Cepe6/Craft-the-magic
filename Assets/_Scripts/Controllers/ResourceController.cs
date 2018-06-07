@@ -10,7 +10,7 @@ public class ResourceController : MonoBehaviour {
     
     private Slider _actionSlider;
 
-
+    ChunksController _chunksController;
     PlayerController _player;
     PlayerInventoryController _inventory;
     private float _currentMineSessionTime = 0f;
@@ -18,6 +18,7 @@ public class ResourceController : MonoBehaviour {
 
     private void Awake()
     {
+        _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         _inventory = GameObject.FindGameObjectWithTag("PlayerInventory").GetComponent<PlayerInventoryController>();
         _actionSlider = GameObject.FindGameObjectWithTag("ActionSlider").GetComponent<Slider> ();
@@ -30,7 +31,7 @@ public class ResourceController : MonoBehaviour {
 
     private void InitializeAmmount()
     {
-        _ammount = (Random.Range(-50, 50) + WorldSettings.DEFAULT_RESOURCE_CAPACITY) + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
+        _ammount = WorldSettings.DEFAULT_RESOURCE_CAPACITY + WorldSettings.INCREASE_RESOURCE_CAPACITY * (WorldSettings.DEFAULT_RESOURCE_CAPACITY / 4);
     }
 	
 	// Update is called once per frame
@@ -112,6 +113,7 @@ public class ResourceController : MonoBehaviour {
                 _currentMineSessionTime = 0f;
                 _currentlyMining = false;
                 _actionSlider.GetComponent<Canvas>().enabled = false;
+                _chunksController.ProtectChunk(transform.position.x, transform.position.z);
                 _player.EnableControls();
                 _player.StopDigging();
             }

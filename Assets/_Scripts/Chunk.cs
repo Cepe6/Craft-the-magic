@@ -31,6 +31,8 @@ public class Chunk : MonoBehaviour {
     //Stores the chunk coordinates local to the list of generated chunks
     private Vector2 _chunkCoordinates;
 
+    private bool _protected = false;
+
     // Use this for initialization
     void Awake () {
         _meshRenderer = GetComponent<MeshRenderer>();
@@ -197,11 +199,17 @@ public class Chunk : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!_visited)
-        {
-            _chunksController.GenerateChunksAround(_chunkCoordinates);
-        }
+         _chunksController.GenerateChunksAround(_chunkCoordinates);
+    }
 
-        _visited = true;
+    public void Protect()
+    {
+        Debug.Log("Chunk protected");
+        _protected = true;
+    }
+
+    public bool IsProtected()
+    {
+        return _protected;
     }
 }

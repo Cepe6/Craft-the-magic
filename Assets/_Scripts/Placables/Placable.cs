@@ -97,6 +97,7 @@ public class Placable : MonoBehaviour {
                 for (int j = 0; j < sizeY; j++)
                 {
                     _tilesUnder[i, j] = _chunksController.GetTile(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
+                    _chunksController.ProtectChunk(_placableIndicators[i, j].transform.position.x, _placableIndicators[i, j].transform.position.z);
                     Destroy(_placableIndicators[i, j]);
                 }
             }
@@ -117,6 +118,7 @@ public class Placable : MonoBehaviour {
             {
                 HotBarController.Instance.GetCurrentSlot().currentAmmount--;
             }
+            
 
             Destroy(this);
         }

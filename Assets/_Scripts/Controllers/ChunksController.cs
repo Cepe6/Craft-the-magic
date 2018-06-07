@@ -54,6 +54,28 @@ public class ChunksController : MonoBehaviour {
         {
             InstantiateChunkAt(notGeneratedChunks[i]);
         }
+
+        DeleteDistantChunks(coordinates);
+    }
+
+    public void DeleteDistantChunks(Vector2 coordinates)
+    {
+
+        List<GameObject> deletedChunks = new List<GameObject>();
+        foreach(GameObject chunkGO in _generatedChunks)
+        {
+            Chunk chunk = chunkGO.GetComponent<Chunk>();
+            if(IsFar(chunk, coordinates))
+            {
+                if (!chunk.IsProtected())
+                {
+                    deletedChunks.Add(chunk.gameObject);
+                    Destroy(chunk.gameObject);
+                }
+            }
+        }
+
+        _generatedChunks = _generatedChunks.Except(deletedChunks).ToList();
     }
 
     //Generate the chunk and initialize its mesh
@@ -109,5 +131,17 @@ public class ChunksController : MonoBehaviour {
     {
         Vector2 convertedCoords = new Vector2((int)(x / _chunkSize) - (x < 0 ? 1 : 0), (int)(y / _chunkSize) - (y < 0 ? 1 : 0));
         return _generatedChunks.Where(chunk => chunk.GetComponent<Chunk>().GetCoordinates().Equals(convertedCoords)).SingleOrDefault();
+    }
+
+    public void ProtectChunk(float x, float y)
+    {
+        Chunk targetChunk = GetChunkFromCoords(x, y).GetComponent<Chunk>();
+        targetChunk.Protect();
+    }
+
+    private bool IsFar(Chunk chunk, Vector2 coordinates)
+    {
+        Chunk currentChunk = _generatedChunks.Where(chunkGO => chunkGO.GetComponent<Chunk>().GetCoordinates() == coordinates).SingleOrDefault().GetComponent<Chunk> ();
+        return (Mathf.Abs(currentChunk.GetCoordinates().x - chunk.GetCoordinates().x) > 2) || (Mathf.Abs(currentChunk.GetCoordinates().y - chunk.GetCoordinates().y) > 2);
     }
 }
