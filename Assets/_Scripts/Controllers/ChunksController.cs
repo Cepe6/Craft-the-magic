@@ -181,8 +181,10 @@ public class ChunksController : MonoBehaviour {
 
     public void ProtectChunk(float x, float y)
     {
-        Chunk targetChunk = GetChunkFromCoords(x, y).GetComponent<Chunk>();
-        targetChunk.Protect();
+        GameObject targetChunk = GetChunkFromCoords(x, y);
+        if (targetChunk != null) {
+            targetChunk.GetComponent<Chunk>().Protect();
+        }
     }
 
     private bool IsFar(Chunk chunk, Vector2 coordinates)

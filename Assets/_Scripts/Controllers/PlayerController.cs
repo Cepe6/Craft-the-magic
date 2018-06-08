@@ -28,11 +28,20 @@ public class PlayerController : MonoBehaviour {
         _animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
         _chunksController = GameObject.FindGameObjectWithTag("World Manager").GetComponent<ChunksController>();
+
+        
     }
 
     private void Update()
     {
-        if(Input.GetAxis("PickItem") != 0)
+        if (_chunksController.GetTile(transform.position.x, transform.position.z).GetTileType() == TilesEnum.LIGHT_WATER
+            || _chunksController.GetTile(transform.position.x, transform.position.z).GetTileType() == TilesEnum.NORMAL_WATER
+            || _chunksController.GetTile(transform.position.x, transform.position.z).GetTileType() == TilesEnum.DARK_WATER)
+        {
+            transform.position += new Vector3(20f, 0f, 0f);
+        }
+
+        if (Input.GetAxis("PickItem") != 0)
         {
             PickDrops();
         }

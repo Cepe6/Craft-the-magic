@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class HotBarController : StaticInventory {
+public class HotBarController : InventoryAbstract {
     //Singleton
     private static HotBarController _instance;
     public static HotBarController Instance

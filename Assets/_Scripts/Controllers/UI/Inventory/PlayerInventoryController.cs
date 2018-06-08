@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class PlayerInventoryController : StaticInventory {
+public class PlayerInventoryController : InventoryAbstract {
     private static PlayerInventoryController _instance;
 
     public static PlayerInventoryController Instance

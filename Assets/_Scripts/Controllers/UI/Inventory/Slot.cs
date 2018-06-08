@@ -42,7 +42,7 @@ public class Slot : SlotAbstract, IPointerDownHandler
 
     private void Update()
     {
-        if (_ammount == 0 || _item == null)
+        if (_ammount <= 0 || _item == null)
         {
             if(_tooltip != null)
             {

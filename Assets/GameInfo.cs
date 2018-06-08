@@ -25,31 +25,41 @@ public class GameInfo {
         string localResCoordToString = localResCoord.x + "," + localResCoord.y;
         int chunkIndex = savedChunksCoords.IndexOf(chunkCoordsToString);
 
-        if(changedResourcesCoords.ElementAtOrDefault(chunkIndex) == null)
+        if(chunkIndex != -1)
         {
-            changedResourcesCoords.Insert(chunkIndex, new StringListWrapper());
-            changedResourcesAmmount.Insert(chunkIndex, new IntListWrapper());
-        }
+            if (changedResourcesCoords.ElementAtOrDefault(chunkIndex) == null)
+            {
+                changedResourcesCoords.Insert(chunkIndex, new StringListWrapper());
+                changedResourcesAmmount.Insert(chunkIndex, new IntListWrapper());
+            }
 
-        if (changedResourcesCoords[chunkIndex].list.Where(coords => coords == localResCoordToString).SingleOrDefault() == null)
-        {
-            changedResourcesCoords.ElementAt(chunkIndex).list.Add(localResCoordToString);
-            changedResourcesAmmount.ElementAt(chunkIndex).list.Add(ammount);
-        } else
-        {
-            int resIndex = changedResourcesCoords[chunkIndex].list.IndexOf(localResCoordToString);
-            changedResourcesAmmount.ElementAt(chunkIndex).list[resIndex] = ammount;
+            if (changedResourcesCoords[chunkIndex].list.Where(coords => coords == localResCoordToString).SingleOrDefault() == null)
+            {
+                changedResourcesCoords.ElementAt(chunkIndex).list.Add(localResCoordToString);
+                changedResourcesAmmount.ElementAt(chunkIndex).list.Add(ammount);
+            }
+            else
+            {
+                int resIndex = changedResourcesCoords[chunkIndex].list.IndexOf(localResCoordToString);
+                changedResourcesAmmount.ElementAt(chunkIndex).list[resIndex] = ammount;
+            }
         }
+        
     }
     public void ChangePlacedMachineInventory(string name, List<string> items)
     {
         int machineIndex = placedMachines.IndexOf(name);
-        if(placedMachinesInventory.ElementAtOrDefault(machineIndex) == null)
+        if(machineIndex != -1)
         {
-            placedMachinesInventory.Insert(machineIndex, new StringListWrapper(items));
-        } else
-        {
-            placedMachinesInventory.ElementAt(machineIndex).list = new List<string>(items); ;
+            if (placedMachinesInventory.ElementAtOrDefault(machineIndex) == null)
+            {
+                placedMachinesInventory.Insert(machineIndex, new StringListWrapper(items));
+            }
+            else
+            {
+                placedMachinesInventory.ElementAt(machineIndex).list = new List<string>(items); ;
+            }
+
         }
 
     }

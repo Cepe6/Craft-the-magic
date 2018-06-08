@@ -67,8 +67,9 @@ public class ResourceController : MonoBehaviour {
         get { return _ammount; }
         set
         {
-            GameSaver.GameInfo.ChangeResource(_chunkCoordinates, _localCoordinates, _ammount);
             _ammount = value;
+            _chunksController.ProtectChunk(transform.position.x, transform.position.z);
+            GameSaver.GameInfo.ChangeResource(_chunkCoordinates, _localCoordinates, _ammount);
         }
     }
 

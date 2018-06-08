@@ -23,15 +23,20 @@ public abstract class InventoryAbstract : MonoBehaviour
         if(GameSettings.Instance().IsSaved())
         {
             int inventoryIndex = GameSettings.Instance().GetSavedInventories().IndexOf(name);
-            if(inventoryIndex != -1)
-                foreach(string slot in GameSettings.Instance().GetSavedInventoryItems().ElementAt(inventoryIndex).list)
+            if (inventoryIndex != -1)
+            {
+                if (GameSettings.Instance().GetSavedInventoryItems().ElementAtOrDefault(inventoryIndex) != null)
                 {
-                    int slotIndex = int.Parse(slot.Split(',')[0]);
-                    string itemName = slot.Split(',')[1];
-                    int ammount = int.Parse(slot.Split(',')[2]);
+                    foreach (string slot in GameSettings.Instance().GetSavedInventoryItems().ElementAt(inventoryIndex).list)
+                    {
+                        int slotIndex = int.Parse(slot.Split(',')[0]);
+                        string itemName = slot.Split(',')[1];
+                        int ammount = int.Parse(slot.Split(',')[2]);
 
-                    _slots[slotIndex].InitItem(Resources.Load<Item>("ScriptableObjects/" + itemName), ammount);
+                        _slots[slotIndex].InitItem(Resources.Load<Item>("ScriptableObjects/" + itemName), ammount);
+                    }
                 }
+            }
         }
     }
 
